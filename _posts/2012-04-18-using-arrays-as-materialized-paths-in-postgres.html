@@ -1,0 +1,137 @@
+---
+layout: post
+title: "Using Arrays as Materialized Paths in Postgres"
+date: 2012-04-08 16:52
+comments: true
+categories: ["django", "disqus", "postgresql"]
+---
+
+<p>Something we've been casually working on at Disqus for <a href="{{ site.url }}/2010/05/30/scaling-threaded-comments-on-django-at-disqus/">quite some time</a> is an improved pagination method for threaded comments. This is obviously pretty important to us, it drives the very foundation of our product. It also happens to be an area that's somewhat challenging, and has a <a href="http://en.wikipedia.org/wiki/Nested_intervals">wide</a> <a href="http://en.wikipedia.org/wiki/Nested_set_model">array</a> <a href="http://en.wikipedia.org/wiki/Adjacency_list">of</a> <a href="https://communities.bmc.com/communities/docs/DOC-9902">solutions</a>. In the end, this is an overly complicated solution to solve the problem of threads having 10s or 100s of thousands of comments.</p>
+
+<p>For some background, our first implementation is very similar to how <a href="http://reddit.com">Reddit</a> and many other systems work. It generally looks something like this:</p>
+
+<ol>
+    <li>Fetch all children for a tree</li>
+    <li>Resort them in memory</li>
+    <li>Return the N entry result set</li>
+</ol>
+
+<p>While fairly easy to implement, this has the enormous cost of pulling down every single child and resorting it at an application level. There are various ways to optimize this, and we even attempted doing it <a href="{{ site.url }}/2010/05/30/scaling-threaded-comments-on-django-at-disqus/">within the database</a> itself. In the end, none of our solutions worked at scale. They would either be too write heavy, or they'd move too much of the logic (read: CPU usage) to the database servers. That said, they led to something great, and in the end we settled on a solution that's neither too write or read heavy. That solution was materialized paths, but not in your typical way.</p>
+
+<p>A materialized path generally is represented as a serialization of all parents. So in a simple case, it might be a simple delimited list of id values. As an example, let's say that we have a list of comments that are guaranteed to only be less than 1000 for their identifying value:</p>
+
+<pre>
+001
+001002
+001002003
+001002007
+001004
+001005
+001005006
+</pre>
+
+<p>In this case we've managed to stuff all of this into a sortable numeric value. Unfortunately, in the real world, it's never this easy, so we looked for existing solutions to solve this problem. We'll skip all of the bikeshedding here, and jump straight to our solution: Arrays.</p>
+
+<p>Arrays are quite an interesting feature in Postgresql. They're a native data type, indexable, sortable, and contain a variety of operators and functions (and even more so in 8.4+). They also fit in nicely with our previous solution, with the caveat that we had to write to the arrays rather than generate them at execution time. In fact, they fit so well that we were able to directly translate a majority of the effort we spent while toying with CTEs.</p>
+
+<p>What we finally settled on was a schema which looks something like this:</p>
+
+<pre>
+\d postsort
+
+  Column   |   Type    | Modifiers
+-----------+-----------+-----------
+ tree_id   | integer   | not null
+ child_id  | integer   | not null
+ value     | numeric[] | not null
+
+Indexes:
+    "postsort_pkey" PRIMARY KEY, btree (tree_id, child_id)
+    "postsort_path" btree (tree_id, value)
+</pre>
+
+<p>A simple three-column schema gives us:</p>
+
+<ul>
+    <li><code>tree_id</code> The root node for this tree (for us, this is a comment thread)</li>
+    <li><code>child_id</code> A child contained within this tree. There's a row for every child</li>
+    <li><code>value</code> Our materialized path, implemented as an array</li>
+</ul>
+
+<p>The most important bit here is the <code>value</code>, and even more so what that array contains. Let's take a look at our previous example of simple numeric IDs, and how that'd be represented in this table:</p>
+
+<pre>
+child_id | value
+----------------
+1        | [1.0]
+2        | [1.0, 2.0]
+3        | [1.0, 2.0, 3.0]
+7        | [1.0, 2.0, 7.0]
+4        | [1.0, 4.0]
+5        | [1.0, 5.0]
+6        | [1.0, 5.0, 6.0]
+</pre>
+
+<p>You'll notice that the value always contains the id of the child as the last element, and is prefixed parents value. The child's ID <strong>must</strong> be present in order to guarantee sortability in conditions where these values are not unique. More specifically, in a real world scenario, you'll probably have some kind of <code>score</code> that you'd be including. As a demonstration of this eventual conflict, take the following values:</p>
+
+<pre>
+child_id | value
+----------------
+1        | [0.9134834, 1.0]
+2        | [0.9134834, 1.0, 0.149341, 2.0]
+3        | [0.9134834, 1.0, 0.149341, 2.0, 0.14123434, 3.0]
+4        | [0.9134834, 1.0, 0.149341, 2.0, 0.14123434, 7.0]
+5        | [0.9134834, 1.0, 0.149341, 5.0]
+6        | [0.9134834, 1.0, 0.149341, 5.0, 0.601343, 5.0]
+</pre>
+
+<p>You'll see that we had a conflicting score for two children. If we always include the <strong>unique identifying numeric value</strong> we'll never have to worry about rows shifting into parents which they're not a part of. You will also see that we've prefixed each child's value with the score. This again gives us the numeric sorting order which we're looking for and allows us to sort by any arbitrary score. This could be anything from a timestamp to a completely custom scoring algorithm based on something like up and down votes on a child.</p>
+
+<p>The schema and data storage is pretty straightforward, the bigger challenge is actually implementing the logic in your application (or if you're insane, within SQL triggers). We end up with a mess of SQL statements, with a singular goal to bring everything down to an atomic, transactionless nature. As an example, creating a new child probably resemebles something like the following:</p>
+
+{% highlight sql %}
+INSERT INTO postsort (
+    tree_id,
+    child_id,
+    value
+)
+SELECT t2.tree_id,
+       %(child_id)d as child_id,
+       (t2.value || %(value)s::numeric[]) as value
+FROM postsort as t2
+WHERE t2.tree_id = %(tree_id)d
+  AND t2.child_id = %(parent_child_id)d
+{% endhighlight %}
+
+<p>Once you've populated the table, queries become amazingly simple:</p>
+
+{% highlight sql %}
+SELECT child_id
+FROM postsort
+WHERE tree_id = %(tree_id)s
+ORDER BY value
+{% endhighlight %}
+
+<p>What's even more cool, aside from a lot of custom SQL we had to create for this to work in Django, is the fact that we were able to easily prototype and implement arrays within the Django ORM:</p>
+
+{% highlight python %}
+class NumericArrayField(models.Field):
+    __metaclass__ = models.SubfieldBase
+
+    def db_type(self):
+        return "numeric[]"
+
+    def get_prep_value(self, value):
+        if value:
+            value = map(float, value)
+        return value
+
+    def to_python(self, value):
+        if value:
+            value = map(float, value)
+        return value
+{% endhighlight %}
+
+<p>We've just begun rolling this out at Disqus, but our initial performance and capacity tests are showing great results. The flexibility of arrays has been amazingly helpful in this scenario, and has pushed us into a new direction in what we can do with SQL. Disqus reaches more than 700 million unique visitors across its platform, and as always, Postgres has stood its ground and will continue to be our primary datastore of choice.</p>
+
+<p>If Disqus sounds interesting to you, and you think you're a good fit and we're looking for passionate people to <a href="http://disqus.com/jobs/">join our team</a>.</p>

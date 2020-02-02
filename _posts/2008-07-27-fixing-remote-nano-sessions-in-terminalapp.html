@@ -1,0 +1,17 @@
+---
+wordpress_id: 131
+layout: post
+title: Fixing Remote nano Sessions in Terminal.app
+wordpress_url: http://www.davidcramer.net/?p=131
+---
+<p>One of my daily problems occurs when I'm ssh'd into a remote server and I'm using nano to edit configuration files or quick scripts to dump information. The problem being, that it screws up differently on different systems.</p>
+
+<p>So let's start with the problems:</p>
+
+<p><strong>Problem:</strong> Using the backspace key doesn't remove the trailing character, but rather the leading character, much like the typical delete key does.</p>
+
+<p><strong>Solution:</strong> There are two solutions. You can add <code>export TERM=xterm</code> to your .bashrc. Alternatively, you can go into your shell preferences (Command+,), go to Settings, and then select the Advanced tab under your shell. You will see a "Declare terminal as" setting, which should also fix the issue.</p>
+
+<p><strong>Problem:</strong> Using the up/down arrow keys, and possibly a number of other situations where text moves, causes the display to completely fubar and requires restarting the nano session.</p>
+
+<p><strong>Solution:</strong> Use vi I guess... I've yet to find a solution for this one :(</p>

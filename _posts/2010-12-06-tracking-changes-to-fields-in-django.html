@@ -1,0 +1,14 @@
+---
+wordpress_id: 36333
+layout: post
+title: Tracking changes to fields in Django
+wordpress_url: http://www.davidcramer.net/?p=36333
+categories: ["django", "disqus"]
+---
+<p>A common practice we have used over at Disqus is tracking changes on a model (explicitly) in order to determine if certain actions need to take place when that instance is updated. We tend to use it like "if changed" database triggers. This has been very useful in situations like marking a comment as visible. In many areas this data is denormalized and we need to somehow propagate changes to counters or other similar structures.</p>
+
+<p>What we ended up doing was building a class decorator. This was my first time using such a technique, and it turned out really well. If you're not familiar, they work almost identically to function decorators. You might even consider them a class factory, if that better helps you understand whats happening.</p>
+
+<p>So, what we came up with was a decorator we've defined as <code>@track_data</code>. It allows us, at runtime, to specify which attributes we want to maintain history of on a model. This history is available from initialization, and reset whenever the model instance is saved (whether its via .save() or .update()).</p>
+
+<p><script src="https://gist.github.com/730765.js"> </script></p>

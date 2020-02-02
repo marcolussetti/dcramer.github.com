@@ -1,0 +1,22 @@
+---
+wordpress_id: 6162
+layout: post
+title: Announcing django-db-log 1.7.1
+wordpress_url: http://www.davidcramer.net/?p=6162
+categories: ["django", "disqus"]
+---
+<p>Today I pushed out a slight overhaul to the UI (and functionality) of django-db-log. The 1.7 version set (use 1.7.1 as 1.7 had a couple minor issues).</p>
+
+<p>Here's the brief changeset:<br><ul><li>Renders full debugging pages just like you'd see with Django (only for newly logged errors) under the new Messages admin.</li><li>Supports logging full exceptions with the python logging handler via the built-in <code>exc_info</code> keyword argument.</li><li>Better support for logging fallbacks if django-db-log fails.</li><li>Overall improved administration interface.</li></ul></p>
+
+<p>The changeset is fairly small, but the headliner is a big one. It allows you to easily debug a request as if it had just happened (by seeing full tracebacks, local variables, etc.). It works with any of the exception handling methods: middleware, create_from_exception, and create_from_record (which is what the logging handler uses).</p>
+
+<p>Here's a sexy preview of it in use over at our development environment on Disqus:</p>
+
+<p><a href="http://www.davidcramer.net/wp-content/uploads/2010/05/Screen-shot-2010-05-12-at-1.13.50-PM.png"><img src="http://www.davidcramer.net/wp-content/uploads/2010/05/Screen-shot-2010-05-12-at-1.13.50-PM.png" alt="" title="Screen shot 2010-05-12 at 1.13.50 PM" width="80%" class="aligncenter size-full wp-image-6164" /></a></p>
+
+<p>Ready to upgrade?</p>
+
+<pre>pip install django-db-log --upgrade</pre>
+
+<p>Enjoy!</p>

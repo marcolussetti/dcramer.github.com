@@ -1,0 +1,25 @@
+---
+wordpress_id: 325
+layout: post
+title: Handling Database Maintenance in Django
+wordpress_url: http://www.davidcramer.net/?p=325
+---
+<p>For most of my sites, and for iBegin especially, we rely heavily on our database. Today we went through a distro upgrade for the database server, and it occurred to me, that we had no good solution for handling these kinds of situations (auto-magically even). I quickly through up a middleware which takes (MySQL only) database OperationalError's and verifies if it's an "Unable to connect error".</p>
+
+<p>Since we have other solutions for monitoring our database, we can safely assume that anytime the database throws this error it roughly translates to "we know the database is down, pretend we did it on purpose". When it happens, we just throw up a simple template telling the user we're doing some maintenance and we'll be back shortly.</p>
+
+<p>So, here's the random code blurb of the [insert interval]:</p>
+
+{% highlight python %}
+
+from jinja.contrib.djangosupport import render_to_response
+from MySQLdb import OperationalError
+
+<p>class DatabaseFailureMiddleware(object):
+def process_exception(self, request, exception):
+if isinstance(exception, OperationalError):
+if exception.args[0] == 2003:
+response = render_to_response('errors/database_down.html')
+response.status_code = 500
+return response
+{% endhighlight %}

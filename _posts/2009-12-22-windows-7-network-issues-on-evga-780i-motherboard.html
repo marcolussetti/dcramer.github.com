@@ -1,0 +1,11 @@
+---
+wordpress_id: 496
+layout: post
+title: Windows 7 Network Issues on EVGA 780i Motherboard
+wordpress_url: http://www.davidcramer.net/?p=496
+---
+<p>Just thought I'd throw up the resolution I found for my networking issues on Windows 7. I've had these non-stop for as many weeks as I can remember. Originally, they were happening via my wireless connection (which uses generic Broadcom drivers). So I figured that maybe the drivers were to blame, and I switched to an ethernet cable. Once I had made the change, I noticed the internet dieing periodically, or after I started downloading large files. Right clicking the network connection and going to diagnose would fix it, with an error noting that the gateway had been invalid (it was being reset to 0.0.0.0).</p>
+
+<p>So, my first step was to update to EVGA's latest drivers for Windows 7 64-bit. That didn't change anything, which was a huge disappointment. After much Googling though, I found a solution which suggested using the Windows Vista 64 bit drivers. Not that it makes much sense, but it seems to have worked for me and many others.</p>
+
+<p>The conclusion: Install Windows Vista drivers for your EVGA motherboard if you're using Windows 7. This is pretty quick:<br><ul><br><li>Download the correct motherboard drivers for Windows Vista</li><br><li>Extract them by running the original setup.py (don't continue installing once they've been extracted).</li><br><li>Right click Computer -> Properties.</li><br><li>Click "Device Manager" on the left sidebar.</li><br><li>Find your Network adapters page, and look for "NVIDIA nForce ...". Right click this and click "Update driver software".</li><br><li>Click on "Browse my computer for driver software".</li><br><li>In the search box, click Browse, and locate the folder where you extracted the drivers. Should look like "C:\NVIDIA\nForceWinVista64Eng\15.51\Ethernet"</li><br><li>Enjoy no more network loss.</li><br></ul></p>

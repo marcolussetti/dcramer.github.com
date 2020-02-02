@@ -1,0 +1,11 @@
+---
+wordpress_id: 43
+layout: post
+title: Rapid development serving 500,000 pages/hour
+wordpress_url: http://www.davidcramer.net/other/43/rapid-development-serving-500000-pageshour.html
+---
+<p>How do you keep things quick for development and streamlined for high-load? Using a Django and LAMP setup that's how. We had a pretty busy couple of days over at Curse (<a href="http://www-en.curse-gaming.com/technology/">what powers curse</a>) and managed to keep a consistent 500,000+ page views per hour with our web servers only be minimally loaded on CPU and memory.</p>
+
+<p>For 6 months we had been struggling with the question "what happens next patch day". That day was today. We managed to break 600,000 pages an hour last december, but immediately crashed afterwards due to the servers not being able to handle the load. This is partly due to optimizations on our end to Django's ORM but also because of some major optimizations contributed by the community (<a href="http://code.djangoproject.com/ticket/17">thanks!</a>).</p>
+
+<p>So when you are thinking about that new website or application you're about to build, think Python, and think Django. It has empowered us to deploy large-scale web applications in as little as a weekend, which would take a week or longer using Python or PHP by themselves.</p>

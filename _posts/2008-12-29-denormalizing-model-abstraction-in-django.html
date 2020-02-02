@@ -1,0 +1,67 @@
+---
+wordpress_id: 402
+layout: post
+title: Denormalizing Model Abstraction in Django
+wordpress_url: http://www.davidcramer.net/?p=402
+---
+<p>In the Lifestream service I've been working on, I presented myself with the need to have some class abstraction, but not in the fashion which is available in Django models. I wanted to achieve a base class, which is stored in the database, and then child classes which simply override some methods. It turned out this would be a lot more complex than anticipated.</p>
+
+<p>This is a fairly common approach to class abstraction, especially in Python. It's used all over the place in your daily code. Whether you are overriding the save() method on your model, or creating your own admin form by subclassing ModelAdmin. I wanted to accomplish a similar task, but doing so on a model. Let's call it backwards abstraction (since abstraction works the other direction in Django). We create a single table, which houses many classes, and possibly even some denormalization for additional data on these classes.</p>
+
+{% highlight python %}
+
+class Source(TemplateModel):
+id              = UUIDField(auto=True, primary_key=True)
+plugin          = models.CharField(max_length=32)
+title           = models.CharField(max_length=64)
+...
+options         = JSONField(blank=True, null=True, editable=False)
+
+# Tell the TemplateModel class what we have called our field.
+__template_key__ = 'plugin'
+
+<p>def render(self):
+raise NotImplementedError
+{% endhighlight %}
+
+As you can see in the above, we have our base class. It's extending from the TemplateModel class (more on this further in), and contains some basic information. We have a <code>plugin</code> field which is the name of the class which is extending the instance, and an <code>options</code> field for storing some extra information based on that class. There is also a <code>render()</code> method for the extension which should be handled by the subclass.
+
+{% highlight python %}
+
+<p>class TwitterExtension(FeedExtension):
+def render(self, event):
+return event.title
+{% endhighlight %}
+
+Our Twitter extension, for this sample, is very simple. All it does it say "Use the base Source class, and render the title of the event". Now while this may not seem all that useful, it begins to be when we do even more complex development. To backtrack things a bit, <code>TwitterExtension</code> extends from the <code>FeedExtension</code>, which is where we are handling most of the logic.
+
+{% highlight python %}
+
+class FeedExtension(Source):
+def render(self, event):
+return '<a href="%s">%s</a>' % (event.url, event.title)
+
+<p>def fetch_url(self, url):
+feed = feedparser.parse(url)
+for entry in feed['entries']:
+data = self.fetch_entry(entry)
+data['key'] = data.get('key', self.get_media_type_for_url(url))
+data['signature'] = self.get_signature_for_entry(entry)
+yield data
+{% endhighlight %}
+
+As you can see here, we're simply changing how the Twitter events are rendered. So simple example, complex to build. Even more so, we want these classes to automatically be delivered whenever we access the base Source class, as well as being able to use the classes directly.
+
+{% highlight python %}
+
+# The instance becomes a <TwitterExtension: TwitterExtensionobject> on creation.
+twitter = Source.objects.create(plugin='TwitterExtension')
+
+<p># And it saves into the Source model.
+twitter.save()
+{% endhighlight %}
+<p>To do this I created a class which I've randomly described as <code>TemplateModel</code>. It does exactly what is talked about above. It stores references to each child class within the parent, and upon instantiation, if it can, it returns the child class instead of the parent.</p>
+
+<p>So without further delay, <strong><a href="http://www.pastethat.com/ta5U1">view the source for TemplateModel</a></strong>.</p>
+
+<p>I'd be interested in hearing if anyone else has come up with their own solutions, and if you use something like this in your project how well its working for you.</p>

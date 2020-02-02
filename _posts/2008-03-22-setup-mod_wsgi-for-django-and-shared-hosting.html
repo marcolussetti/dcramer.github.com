@@ -1,0 +1,37 @@
+---
+wordpress_id: 108
+layout: post
+title: Setup mod_wsgi for Django and Shared Hosting
+wordpress_url: http://www.davidcramer.net/code/django/108/setup-mod_wsgi-for-django-and-shared-hosting.html
+---
+<p>Recently I took the opportunity to configure my server for per-user hosting (to offer some free hosting to people who needed it). Doing this I had to configure mod_wsgi per-user as well. First, let me say that <a href="http://code.google.com/p/modwsgi/wiki/ConfigurationGuidelines">the documentation</a> is excellent, but real world examples are always very helpful. Below is the output of a script which runs per-user on my server.<br><!--more--><br><h2>/etc/apache2/users/username.conf</h2><br><pre>&lt;VirtualHost *&gt;<br>ServerAdmin username@localhost<br>ServerName userdomain.com<br>ServerAlias userdomain.com www.userdomain.com</p>
+
+<p>WSGIScriptAlias / &quot;/home/username/.wsgi/project_name&quot;<br>WSGIDaemonProcess userdomain user=username threads=15 display-name=%{GROUP}<br>WSGIProcessGroup userdomain</p>
+
+<p>DocumentRoot &quot;/home/username/project_name&quot;</p>
+
+<p>Alias /media/ &quot;/home/username/project_name/media/&quot;<br>&lt;Directory &quot;/home/username/project_name/media&quot;&gt;<br>Order allow,deny<br>Options Indexes<br>Allow from all<br>IndexOptions FancyIndexing<br>&lt;/Directory&gt;</p>
+
+<p>Alias /admin-media/ &quot;/usr/local/django-dev/django/contrib/admin/media/&quot;<br>&lt;Directory &quot;/usr/local/django-dev/django/contrib/admin/media&quot;&gt;<br>Order allow,deny<br>Options Indexes<br>Allow from all<br>IndexOptions FancyIndexing<br>&lt;/Directory&gt;</p>
+
+<p>&lt;Directory &quot;/home/username/project_name/&quot;&gt;<br>Options +ExecCGI<br>Allow from all<br>&lt;/Directory&gt;</p>
+
+<p>ErrorLog /home/username/logs/userdomain.com/error.log<br>CustomLog /home/username/logs/userdomain.com/access.log combined<br>&lt;/VirtualHost&gt;</pre></p>
+
+<p><h2>/home/username/.wsgi/project_name</h2></p>
+
+{% highlight python %}
+import os, sys
+
+# Add the project to the python path
+sys.path.append('/usr/local/django-dev/django')
+sys.path.append('/home/username')
+
+# Set our settings module
+os.environ['DJANGO_SETTINGS_MODULE']='project_name.settings'
+
+import django.core.handlers.wsgi
+
+# Run WSGI handler for the application
+application = django.core.handlers.wsgi.WSGIHandler()
+{% endhighlight %}

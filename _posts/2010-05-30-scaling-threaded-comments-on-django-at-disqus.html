@@ -1,0 +1,82 @@
+---
+wordpress_id: 6939
+layout: post
+title: Scaling Threaded Comments on Django at Disqus
+wordpress_url: http://www.davidcramer.net/?p=6939
+categories: ["django", "disqus"]
+---
+<p>As many you of know I <a href="http://blog.disqus.com/post/568244555/david-cramer">joined</a> <a href="http://www.disqus.com">Disqus</a> last month. This was a pretty big move for me, and definitely a great one. They have some amazing challenges, and the company has a great group of people willing to solve them.</p>
+
+<p>I've always been a big advocate of MySQL. Not because it's the best relational database, but because it works, and it works well. However, moving to Disqus had one big change which I had to adjust to, and that was PostgreSQL. Not only that, but the size of the data in their databases more than tripled anything I had previously worked with (and that's not even including the load, just raw data).</p>
+
+<p>So, going on a month now at this amazing workplace, I've learned some pretty cool things regarding PGSQL. Let's talk about a few of those, and the pros and cons.</p>
+
+<p>First up, scalability, as it's the biggy. For a long time PostgreSQL has been looked at as an alternative to MySQL. For most of that time, however, there just was no way to scale it to the level of which MySQL could achieve. In the last few years the problem has all but vanished, and there's been many interesting, widely adopted tools for PG. Two of them which we use at Disqus are <a href="http://www.slony.info/">Slony</a>, and <a href="http://pgfoundry.org/projects/pgbouncer">pgbouncer</a>. Slony allows us to replicate data (as well as partition in, in some cases), and pgbouncer solves persistent connections and pooling.</p>
+
+<p>Next up, let's move on to the language itself. I had the pleasure this week of learning how to use recursive queries within PGSQL 8.4, and holy shit are they powerful.  Here's what I really want to talk about with this blog post. MySQL allows you to do things, and do them well, but you must do them within the constructs of the engine. Now while this holds true within PG as well, you have much more freedom in the choices you can make. So, now I want to talk about our problem, threaded comments.</p>
+
+<p>As you all know, Disqus is not only the largest Django site (<strong>we are closing in on a billion page views each month</strong>), but it also the largest service provider for comments on the web. We provide many features, to many thousands of websites, the basics of which being threaded comments.</p>
+
+<p>PostgreSQL offers several solutions to threading. There's obviously the most common (and fairly efficient) method which is trickily named <a href="http://articles.sitepoint.com/print/hierarchical-data-database">modified preorder tree traversal</a>. To summarize, this adds a left order, and a right order, which may be updated on insertion of a comment into the tree. Now there is also the other standard approach (which for some reason Reddit finds oh so fun to use), which is "select everything and deal with it in memory". Well, turns out, it's not just Reddit doing that :)</p>
+
+<p>Moving on to what PGSQL actually offers, we have two more options (within 8.4 at least). One of those is a contrib module within PG called ltree. It allows you to store the full path (all parents) to a node as well as searching and selecting on it with standard SQL statements. This is extremely useful if you just want a basic "order by oldest" as it becomes a simple "order by ltree_column". However, Disqus, as always, isn't that simple.</p>
+
+<p>Our second solution is the new recursive queries. Now this took me a few hours to really wrap my head around how it was working, but once I did, I was amazed at the possibilities. Including things like the <code>OVER()</code> modifier, Postgres offers some very interesting concepts that weren't available to me within MySQL. The best part? They actually perform VERY well.</p>
+
+<p>Let's get down to our situation, which is a big one. Right now, Disqus handles threading just like Reddit, which handles it just like many other solutions on the internet, that is, very poorly. And I don't mean poorly as in its badly written, it's just not optimized nearly as well as it could be. This doesn't become a problem until certain people (I'm looking at you Mr. Obama) start using your application, and everybody and anybody wants to reply to a comment. Again, we're pulling them down to Django (even if its incrementally) and grouping them withint he application logic.</p>
+
+<p>As of 8.4 this can truly be handled by recursive queries (in any situation we've come across, even if it's a bit complex to do it). It's even pretty simple to do.</p>
+
+<p>So let's take a basic example. We have a comment model, which looks a bit like this:</p>
+
+{% highlight sql %}
+create table comments (
+    id SERIAL PRIMARY KEY,
+    message VARCHAR,
+    author VARCHAR,
+    parent_id INTEGER REFERENCES comments(id)
+);
+insert into comments (message, author, parent_id)
+    values ('This thread is really cool!', 'David', NULL), ('Ya David, we love it!', 'Jason', 1), ('I agree David!', 'Daniel', 1), ('gift Jason', 'Anton', 2),
+    ('Very interesting post!', 'thedz', NULL), ('You sir, are wrong', 'Chris', 5), ('Agreed', 'G', 5), ('Fo sho, Yall', 'Mac', 5);
+{% endhighlight %}
+
+<p>What we've done now, is setup a basic comment model. We've included the message, the author, and the parent comment (which is optional). Now let's learn how to use a recursive query to easily re-order this datd, showing us a fully threaded view, sorted in ascending order by id.</p>
+
+{% highlight sql %}
+WITH RECURSIVE cte (id, message, author, path, parent_id, depth)  AS (
+    SELECT  id,
+        message,
+        author,
+        array[id] AS path,
+        parent_id,
+        1 AS depth
+    FROM    comments
+    WHERE   parent_id IS NULL
+
+    UNION ALL
+
+    SELECT  comments.id,
+        comments.message,
+        comments.author,
+        cte.path || comments.id,
+        comments.parent_id,
+        cte.depth + 1 AS depth
+    FROM    comments
+    JOIN cte ON comments.parent_id = cte.id
+    )
+    SELECT id, message, author, path, depth FROM cte
+ORDER BY path;
+{% endhighlight %}
+
+<p>Pretty sweet huh? Oh wait, confused? So was I, and the query I was looking at was a whole lot more complex.  Public shout-out to the amazing folks at <a href="http://pgexperts.com">pgexperts</a> for pointing us on the right path.</p>
+
+<p>Now I'm not going to drill into this too much, because there are much better <a href="http://www.storytotell.org/blog/2009/08/11/postgresql84-recursive-queries.html">tutorials</a> for dealing with recursive queries in this pattern, but let's finish up with our results.</p>
+
+<p>We deal with an <strong>enormous</strong> set of information, and some threads have literally thousands of repies. Pulling this down into memory isn't a problem when 99% of threads only have a hundred replies, but when they start to peak we end up wasting a lot of time. Recursion within PGSQL allows us to easily pass off this work to the database (which just so happens to be able to do it faster than we ever could), and save us a ton of network traffic and web processing time in the process.</p>
+
+<p>To give you an idea of the effect this will have (pending everything works out), we've seen savings of up to 500% on some large datasets, just for the SQL processing time (returning 25 results, rather than 1000). This doesn't even represent the cost in our application layer. Yes, you heard that right, <strong>the SQL statement is 5x more performant at the database level alone</strong>.</p>
+
+<p>Wrapping all of this up, for a MySQL advocate, I'm pretty damn impressed with the performance, scalability, and the general flexibility that Disqus has achieved with PostgreSQL. I'm definitely looking forward to what else we can do with the platform, and the many challenges that await us.</p>
+
+<p>(And yes, for those wondering, I'm "back", and will continue blogging about random awesome/crazy/forbidden things that we get to treat ourselves to)</p>

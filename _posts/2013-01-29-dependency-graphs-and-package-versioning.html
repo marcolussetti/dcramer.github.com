@@ -1,0 +1,42 @@
+---
+layout: post
+title: "Dependency Graphs and Package Versioning"
+date: 2013-01-29 00:37
+comments: true
+categories: [ "python" ]
+---
+
+<p>Today I had the unfortunate pleasure of attempting to upgrade a dependency on <a href="https://getsentry.com">getsentry.com</a>. The package I was upgrading contained a bugfix that I needed, so this was actually something I wanted, and needed to get done. Unfortunately, the package also contained a new requirement: <code>requests &gt;= 1.0</code>.</p>
+
+<h3>Conflicting Dependencies</h3>
+
+<p>Normally dependencies aren't too much of a nightmare. Every so often you'll get a library which version locks something that isn't sensible, and you'll hit conflicts. In this case, I figured that since I was already relying on the previous release before requests 1.0, that upgrading it would go off without a hitch. Nope.</p>
+
+<p>Upgrading the library resulted in several other dependencies complaining that they require requests &lt; 1.0, or even worse, they didn't report their dependency correctly and instead failed to even work (in the test suite, at least). I quickly learned that there were (at least) two major compatibility issues with this upgrade. Even worse, one of them was a fundamental core API. </p>
+
+<p>Most libraries had support for this dependency in a newer version, but some of them weren't even released. I ended up having to pin git SHAs on several of the dependencies, which for various reasons isn't usually a good idea.</p>
+
+<h3>Libraries vs Applications</h3>
+
+<p>I've had various people today suggest that I should just "update my code". I'll assume those various people don't understand what a dependency graph is, and especially the limited scoping one that Python let's us work with. This code is relying on a library, and unfortunately in this case, it's a popular one. This means we end up with numerous dependencies, many of this which also share common dependencies. For example, Django is a dependency of most of the components in Sentry. Django, however, has well spaced releases, and does an excellent job at maintaining compatibility (and deprecations) between point releases.</p>
+
+<p>Several people have tried to suggest that the a major version bump means they can break APIs. You can do whatever you want with your library, but that doesn't mean you should. To put it frankly:</p>
+
+<p><strong>A library should never completely change APIs between releases.</strong></p>
+
+<p>So please, whether your semantic versioning playbook says you can do something or not, it's your choice whether you do.</p>
+
+<h3>Deprecation Policies</h3>
+
+<p>Let me be the first to tell you that I'm not great at following deprecation policies in my open source work. I do try, but sometimes things just slip through that weren't considered. Instead, let's talk about another project that many of use every day: Django</p>
+
+<p>Looking at how Django does it, generally you'll be given one entire release cycle to add transitional support. For example, Django added multiple database support, which subsequently added a new configuration value called <code>DATABASES</code>. This supported many databases instead of one, which was previously defined using <code>DATABASE_XXX</code> values. In the version which this was released, they maintained compatibility with both the new style, and the old. This, among many other reasons, is why Django is a great framework to build on.</p>
+
+<p>In the case of requests, a heavily used attribute on the <code>Response</code> class was changed. The <code>json</code> attribute was changed to be a callable. Now I'm not sure why (though reading the source it seems inconsistent), but it's an extremely well traveled code path, and entirely backwards incompatible. These are the kinds of changes that frustrate me.</p>
+
+<h3>Keep Things Simple</h3>
+
+<p>I want to make one final point. Continually people have pestered me to use the requests library for trivial things. My response has always been simply that it is unnescesary. Is the API cleaner than urllib? It sure is. Is it worth introducing a dependency when all I'm doing is a simple GET or POST request? Almost never.
+
+<p>The Python standard library really isn't that complicated. Consider the cost of a dependency the next time you introduce it.</p>
+

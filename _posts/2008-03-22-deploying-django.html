@@ -1,0 +1,45 @@
+---
+wordpress_id: 107
+layout: post
+title: How to Deploy Django with Subversion and mod_wsgi
+wordpress_url: http://www.davidcramer.net/?p=107
+---
+<p>Today a question was raised on how to deploy Django on your server. I figured it'd be useful to put together a quick how-to for deploying Django on your standard LAMP infrastructure. I'm not going to say the way we've done things is the best, or if it's even common, but it's the way we've handled it.<br><!--more--><br><h2>Choosing the Right Software</h2><br>Most importantly when deploying Django you want to use the right architecture for the server. After a lot of trial and error, with much software, I've been pretty happy with what I've setup on my local server.<br><ul><li>Apache 2.x + mod_wsgi<br />You can <a href="http://www.davidcramer.net/code/django/108/setup-mod_wsgi-for-django-and-shared-hosting.html">see my configuration example</a>.</li><li>MySQL 5.0.x (or Postgre 8.2.x if you're a fan)</li><li>Python 2.5<br/>If you have a choice, there's no reason to use old software.</li><li>Django (trunk)<br/>I suggest you start with trunk. It's very stable and you won't have to deal with backwards incompatibility.</li><li>(Optional) <a href="http://www.danga.com/memcached/">memcache</a><br/>If you need caching, don't waste your time with anything other than memcache.</li><li>(Optional) <a href="http://jinja.pocoo.org/">Jinja Template Engine</a><br/>If you prefer more logic and speed in your templates, I highly recommend the Jinja Template Engine.</li></ul></p>
+
+<p><h2>Project Structure</h2><br>This is one area, which is still up for heavy debate. It seems to be done in a multitude of ways, and even I myself seem to do it in such. iBegin we've set up each project in idea that the python code should not be in the same base directory as the templates and media. So for iBegin we end up with a project structure like so:</p>
+
+<pre><br>/project_name/<br>/project_name/templates/<br>/project_name/media/<br>/project_name/project_name/<br>/project_name/project_name/manage.py<br></pre>
+
+<p>Now to take a step back, in PHP I learned to separate includes (templates and media) from my codebase, to prevent them from being web accessible. This concept comes from that learning. The main issue I've seen arise from this is that the pathing can be very confusing, especially when checking python paths. For iBegin Places we actually have <code>/places/</code> and then inside of that we have another project, called zillow, so <code>/places/zillow/</code>. This gets to be pretty hectic when you're trying to solve <code>PYTHONPATH</code> issues.</p>
+
+<p>On my local server (which hosts this blog), I've setup things a bit differently:<br><pre><br>/project_name/<br>/project_name/templates/<br>/project_name/media/<br>/project_name/manage.py<br></pre></p>
+
+<p>This concept came from the idea of keeping everything simple, and having an easy <code>PYTHONPATH</code> (the user's base directory for example).</p>
+
+<p><h2>local_settings.py</h2><br>First things first, before deploying anything, let's talk about local_settings vs settings. One of the biggest issues with deployment, on any kind of website, is that your settings differ from developing, to staging, to live. There's a pretty good snippet that I grabbed a while back from <a href="http://www.djangosnippets.org/">djangosnippets.org</a> for this.</p>
+
+{% highlight python %}
+try:
+    from local_settings import *
+except ImportError:
+    pass
+{% endhighlight %}
+<p>You would place this within your <code>settings.py</code> near the end of the file. What this does is look for a file called <code>local_settings.py</code> in the same directory as settings, and if it exists, and causes no errors, will import all of the settings in there.</p>
+
+<p>If you are using subversion you're also going to want to <code>svn:ignore</code> on <code>local_settings.py</code>. I would also recommend versioning a <code>local_settings.tpl</code>, and using a symlink for your local_settings.py rather than keeping it in the project directory.</p>
+
+<p><h2>Managing Subversion</h2><br>One of the biggest changes I've made lately to the way we deploy projects is relying heavily on subversion. Over at Curse we started by having a live branch, and merging into that, and then rsync'ing that to the servers. While this worked fairly well and all, it was a pretty tedious approach to deal with merging in SVN.</p>
+
+<p>Eventually at Curse we switched over to using tags, which is what we've been doing lately over at iBegin, is using tags pretty strictly. We tag every single release, and for the most part, you'll always find a specific tagged version on the live website. In my opinion, this was the most concise and easiest solution for <em>making subversion work</em>.</p>
+
+<p><h2>Setup Staging</h2><br>For staging we keep it pretty simple, and just have a svn checkout for the current project where it needs to be. Being that staging is usually right before you release it to the live site, this works very good for making sure trunk is fit. A simple example of how we update staging (this is contained within scripts to be precise):<br><pre>ssh dev.ibegin.com<br># updatesite.sh &lt;project&gt;<br>svn up /home/ibegin/$1<br>sudo apachectl graceful</pre></p>
+
+<p>Or if you were using mod_wsgi:<br><pre>svn up /home/ibegin/$1<br>killall -u $1 apache2</pre></p>
+
+<p><h2>Releasing Versions</h2><br>The biggest issue then comes with when you want to update your website. Previous methods I've used would be to SCP the contents of the site over, or have an SVN checkout on the actual live server which then does some kind of update. This time around I decided on a much more sane solution: <code>svn export</code>.</p>
+
+<p>It made it extremely simple for updating the website, as all you would do is call an <code>svn export --force</code> and an apache graceful (or kill the procs with mod_wsgi). This doesn't solve the multiple server aspect, but you could run a script to <code>svn export</code> and then rsync similarly to how we did it on Curse. So here's an example push (using iBegin's logic):<br><pre>ssh ibegin.com<br># /home/ibegin/places is where our checkout would be<br># If you weren't using tags, you could replace this with your trunk<br>svn export https://svn.ibegin.com/ibegin/places/tags/0.3 /home/ibegin/ --force</pre></p>
+
+<p>This is pretty self explanatory, but here's the steps involved:<br><ol><li>First we SSH into our live web server<br><code>ssh.ibegin.com</code></li><li>Once we're in the server; we do an svn export on our branch, tag, or trunk, and a force update into the live directory. Without the force tag it would throw an error because the directory already exists.</li><br><code>svn export https://svn.ibegin.com/ibegin/places/tags/0.3 /home/ibegin/ --force</pre><br></code></li><br></ol></p>
+
+<p>That's all there is to it. It sounds complicated at first (if you're unfamiliar), but it's really simple to deploy Django and release your project.</p>

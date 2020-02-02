@@ -1,0 +1,55 @@
+---
+wordpress_id: 79
+layout: post
+title: In-Depth django-sphinx Tutorial
+wordpress_url: http://www.davidcramer.net/code/79/in-depth-django-sphinx-tutorial.html
+---
+<p>Again, I still suck at documentation, and my "tutorials" aren't in-depth enough. So hopefully this covers all of the questions regarding using the django-sphinx module.<br><!--more--><br>The first thing you're going to need to do is install the Sphinx search software. You will be able to get this through <a href="http://www.sphinxsearch.com/">http://www.sphinxsearch.com/</a>, or probably even port or aptitude.</p>
+
+<p><h2>Configure Sphinx</h2></p>
+
+<p>Once you have successfully installed Sphinx you need to configure it. Follow the directions in on their website for the basic configuration, but most importantly, you need to configure a search index which can relate to one of your models.</p>
+
+<p>Here is an example of an index from Curse's File model, which let's you search via name, description, and tags on a file. Please note, that "base" is a base source definition we created which has a few defaults which we use, but this is unrelated to your source definition.</p>
+
+<pre><br>source files_file_en : base<br>{<br>sql_query			= \<br>SELECT files_file.id, files_file.name, files_data.description, files_file.tags as tag \<br>FROM files_file JOIN files_data \<br>ON files_file.id = files_data.file_id \<br>AND files_data.lang = 'en' \<br>AND files_file.visible = 1 \<br>GROUP BY files_file.id<br>sql_query_info		= SELECT * FROM files_file WHERE id=$id<br>}<br></pre>
+
+<p>Now that you have your source defined, you need to build an index which uses this source. I do recommend placing all of your sphinx information somewhere else, maybe <code>/var/sphinx/data</code>.</p>
+
+<pre>index files_file_en<br>{<br>source			= files_file_en<br>path			= /var/data/files_file_en<br>docinfo			= extern<br>morphology			= none<br>stopwords			=<br>min_word_len		= 2<br>charset_type		= sbcs<br>min_prefix_len		= 0<br>min_infix_len		= 0<br>}<br></pre>
+
+<p><h2>Configure Django</h2></p>
+
+<p>Now that you've configured your search index you need to setup the configuration for Django. The first step to doing this is to install the django-sphinx wrapper. First things first, download the zip archive, or checkout the source from <a href="http://code.google.com/p/django-sphinx/">http://code.google.com/p/django-sphinx/</a>.</p>
+
+<p>Once you have your files on the local computer or server, you can simple do <code>sudo python setup.py install</code> to install the library.</p>
+
+<p>After installation you need to edit a few settings in settings.py, which, again, being that I suck at documentation, isn't posted on the website.</p>
+
+<p>The two settings you need to add are these:<br><pre><br>SPHINX_SERVER = 'localhost'<br>SPHINX_PORT = 3312<br></pre></p>
+
+<p><h2>Setup Your Model</h2></p>
+
+<p>Now you are fully able to utilize Sphinx within Django. The next step is to actually attach your search index to a model. To do this, you will need to <code>import djangosphinx</code> and then attach the manager to a model. See the example below:</p>
+
+{% highlight python %}
+from django.db import models
+import djangosphinx
+
+class File(models.model):
+    name = models.CharField()
+    tags = models.CharField() # We actually store tags for efficiency in tag,tag,tag format here
+
+    objects = models.Manager()
+    search  = djangosphinx.SphinxSearch(index="files_file_en")
+{% endhighlight %}
+
+<p>The index argument is optional, and there are several other parameters you can pass, but you'll have to look in the code (or pydoc if I did it right, but probably not).</p>
+
+<p>Once we've defined the search manager on our model, we can access it via Model.manager_name and pass it many things like we could with a normal object manager in Django. The typical usage is <code>Model.search.query('my fulltext query')</code> which would then query sphinx, grab a list of IDs, and then do a <code>Model.objects.filter(pk__in=[list of ids])</code> and return this result set.</p>
+
+<p><h2>Search Methods</h2></p>
+
+<p>There are a few additional methods which you can use on your search queryset besides the default <code>query</code> method. <code>order_by</code>, <code>filter</code>, <code>count</code>, and <code>exclude</code> to name a few. These don't *quite* work the same as Django's as they're used directly within the search wrapper. So here's a brief rundown of these:</p>
+
+<ul><li><code>query</code><br />This is your basic full-text search query. It works exactly the same as passing your query to the full-text engine. It's search type will be based on the <strong>search mode</strong>, which, by default, is SPH_MATCH_EXTENDED.</li><li><code>filter</code>/<code>exclude</code><br />The filter and excludes method holds the same idea as the normal queryset methods, except that it is used directly in Sphinx. What this means, is that you can only filter on attribute fields that are present in your search index.</li><li><code>order_by</code><br />The order_by method also passes its parameters to Sphinx, with one exception. There are four reserved keywords: <code>@id</code>, <code>@weight</code>, <code>@rank</code>, and <code>@relevance</code>. These are detailed in the Sphinx documentation.</li><li><code>select_related</code><br />This method is directly passed onto the Django queryset and holds no value to Sphinx.</li><li><code>index_on</code><br />Allows you to specify which index(es) you are querying for. To query for multiple indexes you need to include a "content_type" name in your fields.</li><br></u>

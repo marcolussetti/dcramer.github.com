@@ -1,0 +1,32 @@
+---
+wordpress_id: 64
+layout: post
+title: trim() in JavaScript
+wordpress_url: http://www.davidcramer.net/code/64/trim-in-javascript.html
+---
+<p>So today I went searching for a trim() method in JavaScript. Much to my suprise, one didn't exist. We actually had one locally that another developer had written, but it was only trimming whitespace (no optional argument to trim a certain character). So today, I went ahead and wrote one.<br><!--more--><br><strong>Update:</strong> I adjusted the methods to be standalone as well as string prototypes and added some constants from the base trim method.</p>
+
+<p><a href="http://pastethat.com/bIQPb">JavaScript trim(), rtrim(), and ltrim() functions</a>.</p>
+
+{% highlight javascript %}
+function encodeRE(s) { return s.replace(/([.*+?^${}()|[\]\/\\])/g, '\\$1') }
+TRIM_BOTH = 0;
+TRIM_LEFT = 1;
+TRIM_RIGHT = 2;
+function trim(v, c, t)
+{
+    if (!t) var t = TRIM_BOTH;
+    if (!c) var c = '\\s';
+    else c = encodeRE(c);
+    var re;
+    if (t == TRIM_BOTH) re = new RegExp('^' + c + '+|' + c + '+$', 'g');
+    else if (t == TRIM_LEFT) re = new RegExp('^' + c + '+');
+    else if (t == TRIM_RIGHT) re = new RegExp(c + '+$');
+    return v.replace(re, '');
+}
+String.prototype.trim = function(c) { return trim(this, c, TRIM_BOTH); };
+String.prototype.ltrim = function(c) { return trim(this, c, TRIM_LEFT); };
+String.prototype.rtrim = function(c) { return trim(this, c, TRIM_RIGHT); };
+{% endhighlight %}
+
+<p>Thanks to <a href="http://simonwillison.net/2006/Jan/20/escape/#c32703">Theodore Zoulias</a> for the encodeRE method :)</p>

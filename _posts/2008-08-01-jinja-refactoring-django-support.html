@@ -1,0 +1,13 @@
+---
+wordpress_id: 173
+layout: post
+title: "Jinja: Refactoring Django Support"
+wordpress_url: http://www.davidcramer.net/?p=173
+---
+<p>I've been annoyed for the last 6 months of using Jinja, as I've been working on numerous different Django projects, and I've had to use <code>django-admin.py</code> vs <code>manage.py</code>. The reason for this is simply, that in my settings.py I had used the <code>djangosupport.configure()</code> routine. I tried moving it to other locations, but they didn't seem to work.</p>
+
+<p>So, I've refactored the djangosupport module (based on some previous comments by the Pocoo team), and deprecated the magical <code>djangosupport.configure()</code>. You can now properly import the module via <code>jinja.contrib.djangosupport</code> and use all of the same methods that were available via <code>django.contrib.jinja</code>.</p>
+
+<p>The patch also includes <code>handler404</code>, <code>handler500</code>, and <code>direct_to_template</code> methods.</p>
+
+<p>If you're interested, here is the <a href="http://www.pastethat.com/v1amU">diff</a> and a matching <a href="http://www.pastethat.com/GQ8Ck">hg bundle</a>. You can also <a href="http://dev.pocoo.org/projects/jinja/ticket/312">view the ticket on Jinja's Trac instance</a>.</p>

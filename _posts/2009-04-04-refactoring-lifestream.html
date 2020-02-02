@@ -1,0 +1,96 @@
+---
+wordpress_id: 446
+layout: post
+title: Refactoring Lifestream
+wordpress_url: http://www.davidcramer.net/?p=446
+---
+<p>For a while now I've been wanting to rewrite Lifestream into a contained OO pattern. It seems to be the "best practice" when it comes to WordPress, but tutorials and what are not spread out so it took a bit of time.</p>
+
+<p>During the process, I also took the opportunity to speed up certain areas, such as option calls. Instead of storing options on a per-key basis, I changed it over to simply use a serialized arrays. In such, I added several new commands to the codebase:</p>
+
+{% highlight php %}
+function _populate_option_cache()
+{
+    if (!$this->_optioncache)
+    {
+        $this->_optioncache = get_option('lifestream_options');
+        if (!$this->_optioncache) $this->_optioncache = $this->_options;
+    }
+}
+
+/**
+* Fetches the value of an option. Returns `null` if the option is not set.
+*/
+function get_option($option, $default=null)
+{
+    $this->_populate_option_cache();
+    $value = $this->_optioncache[$option];
+    if (!$value) {
+        return $default;
+    }
+    return $value;
+}
+
+/**
+* Removes an option.
+*/
+function delete_option($option)
+{
+    $this->_populate_option-cache();
+    unset($this->_optioncache[$option]);
+    update_option('lifestream_options', $this->_optioncache);
+}
+
+/**
+* Updates the value of an option.
+*/
+function update_option($option, $value)
+{
+    $this->_populate_option_cache();
+    $this->_optioncache[$option] = $value;
+    update_option('lifestream_options', $this->_optioncache);
+}
+
+/**
+* Sets an option if it doesn't exist.
+*/
+function add_option($option, $value)
+{
+    $this->_populate_option_cache();
+    if (!array_key_exists($option, $this->_optioncache))
+    {
+        $this->_optioncache[$option] = $value;
+        add_option('lifestream_options', serialize($this->_optioncache));
+    }
+}
+{% endhighlight %}
+
+From here I moved on to change all the translation calls <code>__</code>, and <code>_e</code> into using a built-in version of which automatically handles the sprintf calls, and the namespace.
+
+{% highlight php %}
+function __($text, $params=null)
+{
+    if (!is_array($params))
+    {
+        $params = func_get_args();
+        $params = array_slice($params, 1);
+    }
+    return vsprintf(__($text, 'lifestream'), $params);
+}
+
+function _e($text, $params=null)
+{
+    if (!is_array($params))
+    {
+        $params = func_get_args();
+        $params = array_slice($params, 1);
+    }
+    echo vsprintf(__($text, 'lifestream'), $params);
+}
+{% endhighlight %}
+
+<p>These two things alone cleaned up a LOT of the plugin, and the efficiency gain from the options change is amazing.</p>
+
+<p>From there I decided to go all out, beyond just refactoring it into a class, I began adding some functionality from our upcoming service. Labels were moved out of the feed classes, and instead are now their own class. Each label is reusable, and controls how it's events should be rendered. Doing this really opened the door to the possibilities of different styles of rendering for different media types.</p>
+
+<p>So after a nice days work, I've pushed out <a href="http://wordpress.org/extend/plugins/lifestream/">wp-lifestream 0.96</a>, which contains an enormous amount of bug fixes, optimizations, and best of all new features. You can see it running live on my blog, with the new display styles and all. Hopefully tomorrow I will be able to finish up the permalinks for events, which will also give the ability to attach comments to them.</p>

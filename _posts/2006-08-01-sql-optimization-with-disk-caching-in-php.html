@@ -1,0 +1,13 @@
+---
+wordpress_id: 24
+layout: post
+title: SQL Optimization with Disk Caching in PHP
+wordpress_url: http://www.davidcramer.net/other/24/sql-optimization-with-disk-caching-in-php.html
+---
+<p>One big thing with large sites is optimization, and a major factor in most sites is SQL. In the end, all optimization methods begin, and most likely end, with a caching solution. While disk caching is not the only solution, in my opinion, for most situations, it is the best solution.</p>
+
+<p>With Nibbits I was in need of such a solution. Nibbits itself is extremely optimized in the code and the SQL queries, but even the most optimized code still can only handle so much load. So today, with about 30 minutes of spare time, I whipped up a quick standard disk caching library.</p>
+
+<p>As always, you can grab the source for my <a href="/projects/diskCache.phps">PHP disk caching class.</a></p>
+
+<p>The class follows the standard calls you see in nearly every major caching system, get and set.<br><blockquote><code>$c = new cache();<br>if (!$data = $c->get('group', 'unique id'))<br>{<br>$data = 'this was cached at '.date();<br>$c->set('group', 'unique id', 10, $data);<br>}</code></blockquote><br>There are two constants the source uses and you will most likely want to set:<br><blockquote><code>CACHE_DIRECTORY - the absolute path to the directory where cached data should reside<br>CACHE_PREFIX - the prefix the class should use on files in this directory</code></blockquote></p>

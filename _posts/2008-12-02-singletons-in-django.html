@@ -1,0 +1,39 @@
+---
+wordpress_id: 375
+layout: post
+title: An Identity Mapper in Django (formerly Django Singletons)
+wordpress_url: http://www.davidcramer.net/?p=375
+---
+<p>As a sort of challenge to myself, I once again attempted to recreate <a href="http://code.djangoproject.com/ticket/17">ticket #17</a> as a standalone component. After a few hours, and some previous code I had written as a good guide, it seems to be working. So I'd like to announce <a href="http://github.com/dcramer/django-idmapper/tree/master">django-idmapper</a>.</p>
+
+<p>The goal of the project is a simple plug-and-play system for integrating the identity mapper into the ORM components. It allows you it simply define as a model with a different base class (via the SharedMemoryModel class), and all queries against this model (yes even from non-singleton models) are directed through the unique instance cache.</p>
+
+<p>In many cases, this can provide a nice decrease of memory usage, and you may even see a nice speed bonus (as we did with Curse).</p>
+
+<p>Here is a nice and dirty quick example of a situation which would gain from this benefit:</p>
+
+{% highlight python %}
+
+from idmapper import models
+
+class Category(models.SharedMemoryModel):
+# We have 5 categories
+name = models.CharField(max_length=32)
+
+<p>class Article(models.SharedMemoryModel):
+# And 100 articles
+name = models.CharField(max_length=32)
+category = models.ForeignKey(Category)
+{% endhighlight %}
+
+Now in a (sort of) typical query, maybe we want to show every article (or 100, which isn't too unreasonable). We also want to show the category they are in:
+
+{% highlight python %}
+
+<p>article_list = Article.objects.all().select_related('category')
+{% endhighlight %}
+<p>What we have achieved here, is only having a maximum of N (where N is the number of categories) unique instances of category in memory here. Since we only have five, this means that we only created five category instances. This gives us a savings of the time it takes to create the additional 95 category objects, as well as the memory they would have consumed.</p>
+
+<p>Please let me know if you run in to any problems, but so far, the tests are passing :)</p>
+
+<p><strong>Note: I've renamed the project due to the incorrect terminology. My apologies :)</strong></p>

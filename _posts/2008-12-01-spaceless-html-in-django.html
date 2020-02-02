@@ -1,0 +1,26 @@
+---
+wordpress_id: 369
+layout: post
+title: Spaceless HTML in Django
+wordpress_url: http://www.davidcramer.net/?p=369
+---
+<p>One of the optimizations (if you want to call it that) that can be done for decreased load-time on a web page, is removing excess white space. In many of our pages at <a href="http://www.ibegin.com">iBegin</a> this saved as much as 100kb. While not every site has some of the 300kb pages that we have, it can still add up very quickly.</p>
+
+<p>Django by default provides a <code>&#123;% spaceless %&#125;</code> tag in your templates which will allow you to achieve this effect, but we don't use Django's template engine (<a href="http://jinja.pocoo.org">Hooray, Jinja!</a>). The tag approach also seemed fairly inappropriate, as we just want to do it across the entire site, no matter what. Instead, we moved it into a middleware, which simply strips all whitespace (using the same method as the built-in tag) from any HTML page.</p>
+
+<p>While this makes some pages unreadable, the time it saves downloading the page for the average user (See Steve Souders' tips) is well worth the trouble it causes a few people.</p>
+
+<p>{% highlight python %}
+# Aliasing it for the sake of page size.
+from django.utils.html import strip_spaces_between_tags as short</p>
+
+<p>class SpacelessMiddleware(object):
+def process_response(self, request, response):
+if 'text/html' in response['Content-Type']:
+response.content = short(response.content)
+return response
+{% endhighlight %}
+
+<p>Note, that if you use page caching middleware, placing this in the appropriate place will also allow you to save space in your cache.</p>
+
+<p>Enjoy!</p>

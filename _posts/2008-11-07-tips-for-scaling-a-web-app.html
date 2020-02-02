@@ -1,0 +1,107 @@
+---
+wordpress_id: 345
+layout: post
+title: Tips for Scaling a Web App
+wordpress_url: http://www.davidcramer.net/?p=345
+---
+<p>As many of you know, I've been working on things over at <a href="http://www.ibegin.com/">iBegin</a> for the past 6 months. One of the things we did was a complete rewrite of our platform which includes a local business listings directory. While doing this, I had the goal in mind to make it as scalable as possible, and keep the caching as simple as possible. I wanted to give everyone a brief rundown on our philosophy and how we've done that.</p>
+
+<p>The first, and most important thing we've done, is make every page cachable that doesn't vary per-user. This is almost every single page on the website, and the only one's that aren't ready to be cached, are pages like user settings. We also wanted these pages to be cached exactly the same no matter what kind of user was accessing them. For us the best solution in this case, was to draw in common things with JavaScript, such as "Logged in as David", or notifications.</p>
+
+<p>There are two main components in handling this. A JavaScript component, and a backend view. So let's show a bit of code, for how we handle this:</p>
+
+{% highlight javascript %}
+var userData = null;
+function initializeUserControls() {
+    var url = BASE_URL + '/account/jsdata/';
+    new Ajax(url, {
+        onComplete: function(resp) {
+            // set userData to the value of the JSON result
+            userData = Json.evaluate(resp || false);
+            var controls = $('accountNav');
+            controls.empty();
+            if (userData.is_authenticated) {
+                // If they are logged in, show a logout link
+                var li = new Element('li', {
+                    'class': 'last',
+                    'id': 'navLogout'
+                });
+                li.appendChild(new Element('a', {
+                    'href': BASE_URL + '/account/logout/'
+                }).setText('Logout'));
+                controls.appendChild(li);
+            } else {
+                // Otherwise, show a login link
+                var li = new Element('li', {'id': 'navLogin'});
+                li.appendChild(new Element('a', {
+                    'href': BASE_URL + '/account/login/'
+                }).setText('Login'));
+                controls.appendChild(li);
+            }
+        },
+        method: 'get'
+    }).request();
+}
+window.addEvent('domready', initializeUserControls);
+{% endhighlight %}
+
+As you can see here, on page load, we initiate an AJAX request to /account/jsdata/. This backend then sends us a JSON encoded dictionary of a few various things:
+
+{% highlight javascript %}
+{"is_authenticated": true, "username": "dcramer", "messages": [], "user_id": 1}
+{% endhighlight %}
+
+And outputting this data is even easier:
+
+{% highlight python %}
+@never_cache
+def js_user(request):
+    context = {
+        'is_authenticated': request.user.is_authenticated(),
+    }
+    if request.GET.get('notices'):
+        context['messages'] = request.messages.get_and_clear()
+
+    if context['is_authenticated']:
+        context['username'] = request.user.username
+        context['user_id'] = request.user.id
+    return HttpResponse(simplejson.dumps(context))
+{% endhighlight %}
+
+Now we have handled making nearly every page on our site cachable, whether it's done in memcache, or a reverse proxy.
+
+Our next task is making the database scale. A good 40% of the development time is spent in designing the platform, and most of this relies around the database. We have enormous amounts of denormalization hooks, and very specific indexing. It's very common in our database, to store the data from a typical foreign key in the same table which it is referencing.
+
+To give a clear example on where this is beneficial, let's take a look at our directory links:
+
+<pre>
+http://www.ibegin.com/directory/us/new-york/new-york/acura-of-manhattan-662-11th-ave/
+</pre>
+
+Obviously, we have a lot of information in the URL. The typical schema here is that a business has a foreign key to a city, which has a foreign key to a state, which has a foreign key to a country. Ouch! To avoid the relational problems which this schema would create, we store the country, state, and city, all as foreign key references within each actual listing. Even more so, we store the slugs for each one as well.
+
+{% highlight python %}
+class BusinessMeta(models.Model):
+    country = models.ForeignKey(Country)
+    country_slug = models.SlugField()
+    state = models.ForeignKey(State)
+    state_slug = models.SlugField()
+    city = models.ForeignKey(City)
+    city_slug = models.SlugField()
+
+    def save(self, *args, **kwargs):
+        if self.has_changed('city'):
+            self.country = self.city.country
+            self.country_slug = self.country.slug
+            self.state = self.city.state
+{% endhighlight %}
+
+<p>As you can see, we hook the save method here to ensure that if our city is changed, we update the related fields, country, and state. Please note that <strong>has_changed()</strong> is not part of the Django core.</p>
+
+<p>In this same example, a typical Django application might have been built with singular indexes on country, state, and city, as they are all Foreign Key references and that is the standard in Django. This is one of the first things you should be looking at when optimization your database. In our situation, we could look up a business listing by the country, by the state, or by the city, but it's always the country, the country and state, or the country, state, and city, so we can optimize our index here:</p>
+
+<pre>INDEX (`country`, `state`, `city`)</pre>
+
+<p>Since indexes work left to right, this index will handle all three of the above queries, and on our dataset of 12 million records, takes 1 or 2 milliseconds to return a typical dataset.</p>
+
+<p>These are just a few of the tricks we use to optimize things at iBegin, but they are some of the most critical. We also use composite primary keys to handle a semi-shared dataset (we have around 13 million businesses listed), a lot of save triggers such as seen above, and many summary tables. However, we have not modified Django's core for any performance optimizations and we are able to do 10-20ms requests without a problem.</p>

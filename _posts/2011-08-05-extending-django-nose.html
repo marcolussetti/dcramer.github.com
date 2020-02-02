@@ -1,0 +1,207 @@
+---
+layout: post
+title: Integrating Django with Nose at DISQUS
+categories: ["django", "disqus", "python"]
+---
+
+<p>About a month ago we decided to make the transition off of Django's test suite over to the Nose runners. Our main selling point was the extensibility, and the existing ecosystem of plugins. Four weeks later I'm happy to say we're running (basically) Nose with some minor extensions, and it's working great.</p>
+
+<p>Getting Django running on Nose is no small feat. Luckily, someone else has already put in a lot of that effort, and packaged it up all nice and neat as <a href="http://pypi.python.org/pypi/django-nose">django-nose</a>. I won't go through setting up the package, but it's pretty straight forward. One thing that we quickly noticed however, was that it didnt quite fit our approach to testing, which was strictly unittest. After a couple days of going back and forth with some minor issues, we came up with a few pretty useful extensions to the platform.</p>
+
+<p>A few of the big highlights for us:</p>
+
+<ul>
+    <li>Xunit integration (XML output of test results)</li>
+    <li>Skipped and deprecated test hooks</li>
+    <li>The ability to organize tests outside of the Django standards</li>
+</ul>
+
+<p>I'm wanted to talk a bit about how we solved some of our problems, and the other benefits we've seen since adopting it.</p>
+
+<h3>Test Organization</h3>
+
+<p>The biggest win for us was definitely being able to reorganize our test suite. This took a bit of work, and I'll talk about this with some of the plugins we whipped up to solve the problems. We ended up with a nice extensible test structure, similar to Django's own test suite:</p>
+
+<pre>
+tests/
+tests/db/
+tests/db/connections/
+tests/db/connections/redis/
+tests/db/connections/redis/__init__.py
+tests/db/connections/redis/models.py
+tests/db/connections/redis/tests.py
+</pre>
+
+<p>We retained the ability to keep tests within the common <code>app/tests</code> convention, but we found that we were just stuffing too many tests into obscure application paths that it became unmaintainable after a while.</p>
+<h3>Unittest Compatibility</h3>
+
+<p>The first issue we hit was with test discovery. Nose has a pretty good default pattern for finding tests, but it had some behavior that didn't quite fit with all of our existing code. Mostly, it found random functions that were prefixed with <code>test_</code>, or things like <code>start_test_server</code> which weren't tests by themselves.</p>
+
+<p>After digging a bit into the API, it turned out to be a pretty easy problem to solve, and we came up with the following plugin:</p>
+
+{% highlight python %}
+class UnitTestPlugin(object):
+    """
+    Enables unittest compatibility mode (dont test functions, only TestCase
+    subclasses, and only methods that start with [Tt]est).
+    """
+    enabled = True
+
+    def wantClass(self, cls):
+        if not issubclass(cls, unittest.TestCase):
+            return False
+
+    def wantMethod(self, method):
+        if not issubclass(method.im_class, unittest.TestCase):
+            return False
+        if not method.__name__.lower().startswith('test'):
+            return False
+
+    def wantFunction(self, function):
+        return False
+{% endhighlight %}
+
+<h2>Test Case Selection</h2>
+
+<p>To ensure compatibility with our previous unittest extensions, we needed a simple way to filter only selenium tests. We do this with the --selenium and --exclude-selenium flags.</p>
+
+{% highlight python %}
+from disqus.tests.testcases import DisqusSeleniumTest
+from nose.plugins.base import Plugin
+
+class SeleniumSelector(Plugin):
+    def options(self, parser, env):
+        parser.add_option("--exclude-selenium",
+                          dest="selenium", action="store_false",
+                          default=None)
+        parser.add_option("--selenium",
+                          dest="selenium", action="store_true",
+                          default=None)
+
+    def configure(self, options, config):
+        self.selenium = options.selenium
+        self.enabled = options.selenium is not None
+
+    def wantClass(self, cls):
+        if self.selenium:
+            return issubclass(cls, DisqusSeleniumTest)
+        elif issubclass(cls, DisqusSeleniumTest):
+            return False
+{% endhighlight %}
+
+<h2>Bisecting Tests</h2>
+
+<p>One feature I always thought was pretty useful in the Django test suite was their <code>--bisect</code> flag. Basically, given your test suite, and a failing test, it could help you find failures which were related to executing tests in say a specific order. This isn't actually made available to normal Django applications, but being a large codebase it's extremely useful for us.</p>
+
+<p><strong>I should note, this one adapted from Django and is very rough. It doesn't report a proper <code>TestResult</code>, but it's pretty close to where we want to get it.</strong></p>
+
+{% highlight python %}
+class _EmptyClass(object):
+    pass
+
+def make_bisect_runner(parent, bisect_label):
+    def split_tests(test_labels):
+        """
+        Split tests in half, but keep children together.
+        """
+        chunked_tests = defaultdict(list)
+        for test_label in test_labels:
+            cls_path = test_label.rsplit('.', 1)[0]
+            # filter out our bisected test
+            if test_label.startswith(bisect_label):
+                continue
+            chunked_tests[cls_path].append(test_label)
+
+        chunk_a = []
+        chunk_b = []
+        midpoint = len(chunked_tests) / 2
+        for n, cls_path in enumerate(chunked_tests):
+            if n < midpoint:
+                chunk_a.extend(chunked_tests[cls_path])
+            else:
+                chunk_b.extend(chunked_tests[cls_path])
+        return chunk_a, chunk_b
+
+    class BisectTestRunner(parent.__class__):
+        """
+        Based on Django 1.3's bisect_tests, recursively splits all tests that are discovered
+        into a bisect grid, grouped by their parent TestCase.
+        """
+        # TODO: potentially break things down further than class level based on whats happening
+        # TODO: the way we determine "stop" might need some improvement
+        def run(self, test):
+            # find all test_labels grouped by base class
+            test_labels = []
+            context_list = list(test._tests)
+            while context_list:
+                context = context_list.pop()
+                if isinstance(context, unittest.TestCase):
+                    test = context.test
+                    test_labels.append('%s:%s.%s' % (test.__class__.__module__, test.__class__.__name__,
+                                                     test._testMethodName))
+                else:
+                    context_list.extend(context)
+
+            subprocess_args = [sys.executable, sys.argv[0]] + [x for x in sys.argv[1:] if (x.startswith('-') and not x.startswith('--bisect'))]
+            iteration = 1
+            result = self._makeResult()
+            test_labels_a, test_labels_b = [], []
+            while True:
+                chunk_a, chunk_b = split_tests(test_labels)
+                if test_labels_a[:-1] == chunk_a and test_labels_b[:-1] == chunk_b:
+                    print "Failure found somewhere in", test_labels_a + test_labels_b
+                    break
+
+                test_labels_a = chunk_a + [bisect_label]
+                test_labels_b = chunk_b + [bisect_label]
+                print '***** Pass %da: Running the first half of the test suite' % iteration
+                print '***** Test labels:',' '.join(test_labels_a)
+                failures_a = subprocess.call(subprocess_args + test_labels_a)
+
+                print '***** Pass %db: Running the second half of the test suite' % iteration
+                print '***** Test labels:',' '.join(test_labels_b)
+                print
+                failures_b = subprocess.call(subprocess_args + test_labels_b)
+
+                if failures_a and not failures_b:
+                    print "***** Problem found in first half. Bisecting again..."
+                    iteration = iteration + 1
+                    test_labels = test_labels_a[:-1]
+                elif failures_b and not failures_a:
+                    print "***** Problem found in second half. Bisecting again..."
+                    iteration = iteration + 1
+                    test_labels = test_labels_b[:-1]
+                elif failures_a and failures_b:
+                    print "***** Multiple sources of failure found"
+                    print "***** test labels were:", test_labels_a[:-1] + test_labels_b[:-1]
+                    result.addError(test, (Exception, 'Failures found in multiple sets: %s and %s' % (test_labels_a[:-1], test_labels_b[:-1]), None))
+                    break
+                else:
+                    print "***** No source of failure found..."
+                    break
+            return result
+
+    inst = _EmptyClass()
+    inst.__class__ = BisectTestRunner
+    inst.__dict__.update(parent.__dict__)
+    return inst
+
+class BisectTests(Plugin):
+    def options(self, parser, env):
+        parser.add_option("--bisect", dest="bisect_label", default=False)
+
+    def configure(self, options, config):
+        self.enabled = bool(options.bisect_label)
+        self.bisect_label = options.bisect_label
+
+    def prepareTestRunner(self, test):
+        return make_bisect_runner(test, self.bisect_label)
+{% endhighlight %}
+
+<h2>Improvements to django-nose</h2>
+
+<p>Finally I wanted to talk about some of the things that we've been pushing back upstream. The first was support for discovery of models that were in non-app tests. This works the same way as Django in that it looks for <code>appname/models.py</code>, and if it's found, it adds it to the <code>INSTALLED_APPS</code> automatically.</p>
+
+<p>The second addition we've been working on allows you to run selective tests that dont require the database, and avoids actually building the database. It does this by looking for classes which inherit from <code>TransactionTestCase</code>, and if none are found, it skips database creation.</p>
+
+<p>I'm curious to here what others have for tips and tricks regarding Nose (or maybe just helpful strategies in your own test runner).</p>

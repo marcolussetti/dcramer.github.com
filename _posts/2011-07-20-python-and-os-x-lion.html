@@ -1,0 +1,29 @@
+---
+layout: post
+title: Python and OS X Lion
+categories: ["django", "python", "osx"]
+---
+
+<p>Just a few quick tips that I've had to run through and discover today while upgrading to Lion.</p>
+
+<p>Start by <strong>installing Xcode 4</strong>, which is available via the App Store (for free now). This will fix your missing distutils package (which probably fixes a majority of your issues). You'll also need to <strong>reinstall all global site-packages</strong>, such as pip or virtualenvwrapper.</p>
+
+<p>The last one, which was luckily solved for me already, was hitting <strong>[Errno 32] Broken pipe</strong> on various things. One example was this:</p>
+
+<pre>  File "/Users/dcramer/.virtualenvs/disqus/lib/python2.6/site-packages/compress/utils.py", line 145, in filter_js
+    return filter_common(js, verbosity, filters=settings.COMPRESS_JS_FILTERS, attr='filter_js', separator='', signal=js_filtered)
+  File "/Users/dcramer/.virtualenvs/disqus/lib/python2.6/site-packages/compress/utils.py", line 136, in filter_common
+    output = getattr(get_class(f)(verbose=(verbosity >= 2)), attr)(output)
+  File "/Users/dcramer/.virtualenvs/disqus/lib/python2.6/site-packages/compress/filters/yui/__init__.py", line 41, in filter_js
+    return self.filter_common(js, 'js', JS_ARGUMENTS)
+  File "/Users/dcramer/.virtualenvs/disqus/lib/python2.6/site-packages/compress/filters/yui/__init__.py", line 20, in filter_common
+    p.stdin.write(content)
+TemplateSyntaxError: Caught IOError while rendering: [Errno 32] Broken pipe</pre>
+
+<p>It turns out that with Xcode 4 there were some changes to the way (something that I dont care about) is handled. To solve this, add the following to your .profile:</p>
+
+<pre>export ARCHFLAGS='-arch i386 -arch x86_64'</pre>
+
+<p>If you rely on <a href="https://github.com/apenwarr/sshuttle">sshuttle</a> be warned, it doesn't work currently on OS X Lion.</p>
+
+<p>I'll update this post if I hit any more issues, but so far everything else seems to be running smoothly.</p>

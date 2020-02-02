@@ -1,0 +1,43 @@
+---
+layout: post
+title: How to actually make LocalSolr work
+categories: ["solr", "disqus"]
+---
+<p>Today I've been working on integrating geospatial search with our upcoming DISQUS Search product, which happens to rely on Solr. It didn't take much work before I stumbled upon <a href="http://www.gissearch.com/localsolr">LocalSolr</a>, which seems to be the defacto gis implementation. The docs were fairly brief, but it <em>seemed</em> easy to get up and running. It just so happens that it wasnt <em>that</em> easy after all. Hoping that this helps someone else out, here's my step by step to getting it setup (locally, at least):</p>
+
+<p>First up, you're going to need to grab the localsolr libraries in some form or another. Hidden obscurely on a "Quick Start" link, is a tgz of an <a href="http://www.nsshutdown.com/solr-example.tgz">example project</a>. It's much like example project included with the actual Solr package, so it should be fairly straightforward. Once I had this, I pulled in my existing configuration to replace the example's, and updating it per the docs.</p>
+
+<p>The first set of changes needed to be made in <code>solrconfig.xml</code>. You're going to need to add the <code>localsolr</code> component, and optionally the geofaceting component. You'll also need to create a separate handler for geo searches (unless you plan to use longitude and latitude with every single search to Solr).</p>
+
+{% highlight xml %}
+<searchComponent name="geofacet"
+                 class="com.pjaol.search.solr.component.LocalSolrFacetComponent"/>
+
+<searchComponent name="localsolr"
+                 class="com.pjaol.search.solr.component.LocalSolrQueryComponent">
+  <str name="latField">lat</str>
+  <str name="lngField">lng</str>
+</searchComponent>
+{% endhighlight %}
+
+{% highlight xml %}
+<requestHandler name="geo" class="org.apache.solr.handler.component.SearchHandler">
+  <arr name="components">
+    <str>localsolr</str>
+    <str>geofacet</str>
+    <str>mlt</str>
+  </arr>
+</requestHandler>
+{% endhighlight %}
+
+<p>Once done, you can move on to altering your <code>schema.xml</code>. It's very important, that if you had used the examples on the LocalSolr site and already begun indexing, that you obliterate your index completely, as it will contain invalid data. This presents itself with an ugly, misleading (at least to Python folk) <a href="http://dl.dropbox.com/u/116385/Screenshots/esgkn9qh6o8m.png">error</a>: <strong>Invalid shift value in prefixCoded string</strong>. It turns out that you actually need to <strong>use <code>tdouble</code> instead of <code>sdouble</code> on all field types</strong>. Don't ask me why, as I don't care to know. So, on to the schema changes:</p>
+
+{% highlight xml %}
+<!-- local lucene field types - ensure these are tdouble! -->
+<field name="lat" type="tdouble" indexed="true" stored="false" required="false"/>
+<field name="lng" type="tdouble" indexed="true" stored="false" required="false"/>
+<field name="geo_distance" type="tdouble" required="false"/>
+<dynamicField name="_local*" type="tdouble" indexed="true" stored="false"/>
+{% endhighlight %}
+
+<p>Now just reindex your data and enjoy. You'll need to pass the <code>qt</code> parameter when searching, and set it to <strong>geo</strong> (or whatever you named your requestHandler above).</p>

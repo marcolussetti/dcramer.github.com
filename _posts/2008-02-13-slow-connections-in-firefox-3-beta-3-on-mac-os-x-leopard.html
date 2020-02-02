@@ -1,0 +1,11 @@
+---
+wordpress_id: 77
+layout: post
+title: Slow Connections in Firefox 3 Beta 3 on Mac OS X Leopard
+wordpress_url: http://www.davidcramer.net/other/77/slow-connections-in-firefox-3-beta-3-on-mac-os-x-leopard.html
+---
+<p>Installed Firefox 3 Beta 3 here today at the office. "Shiny new fixes" they said. So I load it up, and obviously none of my addons work again (so I have to run them through my converter), and I attempt to hit Curse. "Connecting to www.curse.com..." for a minute. Ok, wtf, is the website down? Nope, Google doesn't work either. Turns out, no websites loading in a timely fashion due to DNS lookups being extremely slow.</p>
+
+<p>So I quickly Googled and found an answer (although unrelated it seemed).</p>
+
+<p>Go to <code>about:config</code> and search for <code>network.dns.disableIPv6</code>. Change the value to <code>true</code> and voila, the internet is now fast again.</p>

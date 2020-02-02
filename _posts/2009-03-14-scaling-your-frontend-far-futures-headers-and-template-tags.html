@@ -1,0 +1,40 @@
+---
+wordpress_id: 429
+layout: post
+title: "Scaling Your Frontend: Far-Futures Headers and Template Tags"
+wordpress_url: http://www.davidcramer.net/?p=429
+---
+<p>One of the many things we do to help optimize our website load times is optimize the frontend by setting far-futures headers. This simply means that media has an Expires tag of sometime in the distant future (maybe a year), and when we make changes, the filename needs to change. The easiest way to do this, is by adding a simple GET parameter.</p>
+
+<p>To handle this, we had been using a simple revision system, where we just increment a number in a list of files, and it appends that number to the filename. After realizing how lazy we should have been, I quickly rewrote it to grab the file modification time and use that as the revision number.</p>
+
+<p>Anyways, we did this by using a simple template tag (or a global object as it's known in Jinja), to output the URL to the file, as well as the revision.</p>
+
+{% highlight python %}
+
+import os, os.path
+from django.conf import settings
+from jinja.contrib.djangosupport import register
+
+<p>def mediaurl(value):
+fname = os.path.abspath(os.path.join(settings.MEDIA_ROOT, value))
+if not fname.startswith(settings.BASE_PATH):
+raise ValueError("Media must be located within MEDIA_ROOT.")
+return '%s%s?%s' % (settings.MEDIA_URL, value, unicode(int(os.stat(fname).st_mtime)))
+register.object(mediaurl)
+{% endhighlight %}
+
+Now to link our media files it's quick and painless:
+
+{% highlight html %}
+
+<!-- iBegin Stylesheets -->
+<link rel="stylesheet" type="text/css" media="screen" href="{{ mediaurl('styles/screen.css') }}" />
+<link rel="stylesheet" type="text/css" media="print" href="{{ mediaurl('styles/print.css') }}" />
+
+<p><!-- JavaScript -->
+<script type="text/javascript">BASE_URL = '{{ BASE_URL|escape }}';</script>
+<script type="text/javascript" src="{{ mediaurl('common/scripts/mootools-1.2.js') }}"></script>
+<script type="text/javascript" src="{{ mediaurl('common/scripts/global.js') }}"></script>
+{% endhighlight %}
+

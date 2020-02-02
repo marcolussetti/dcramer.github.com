@@ -1,0 +1,66 @@
+---
+wordpress_id: 113
+layout: post
+title: Using Jinja With Django
+wordpress_url: http://www.davidcramer.net/?p=113
+---
+<p>Every time I meet someone new who asks me about Django, I tell them exactly what I think. It's a great product. It does exactly what it's designed to do. Allows you to build decently structured applications rapidly, without much overhead in doing so. One of the other things I tell them, is that the first they should do is scrap the template engine, and install Jinja.<br><!--more--><br>Jinja is a sandboxed template engine, written in Python of course. It's created by the guys over at Pocoo. It has a number of improvements over the Django engine, including faster rendering. Most of all, it allows you to place logic in templates where you need to, when Django does not.</p>
+
+<p><h2>Core Differences</h2><br>Jinja templates are not 100% compatible with Django, and vice versa. Some of the biggest changes include methods required parenthesis, being able to access and pass attributes marked as pseudo-private (e.g. instance._meta), and a number of additional types of calls in templates. You will also find that all keywords are lowercase, those being true, false, none, and undefined. Best of all, you can use else if and any operator inside your if clauses just like you can in Python. No more clustered lists of <code>&#123;% if %&#125;&#123;% if %&#125;&#123;% ifnotequal %&#125;</code>.</p>
+
+<p><h4>Jinja</h4><br><pre><br>&#123;% extends "bone/bone.html" %&#125;</p>
+
+<p>&#123;% block content %&#125;<br>&lt;h1&gt;My Objects&lt;/h1&gt;<br>&#123;% for object in my_objects.iteritems() %}<br>&lt;li class="&#123;% cycle 'row1','row2','row3','row4' %&#125;"&gt;&lt;a href="&#123;&#123; object.get_absolute_url &#125;&#125;"&gt;&#123;&#123; object.name|escape &#125;&#125;&lt;/a&gt;&lt;br /&gt;&lt;/li&gt;&#123;% endfor %&#125;<br>&#123;% endblock %&#125;<br></pre></p>
+
+<p><h4>Django</h4><br><pre><br>&#123;% extends "bone/bone.html" %&#125;</p>
+
+<p>&#123;% block content %&#125;<br>&lt;h1&gt;My Objects&lt;/h1&gt;<br>&lt;ul&gt;<br>&#123;% for object in my_objects.iteritems %&#125;<br>&lt;li class="&#123;% cycle row1 row2 %&#125;"&gt;&lt;a href="&#123;&#123; object.get_absolute_url &#125;&#125;"&gt;&#123;&#123; object.name|escape &#125;&#125;&lt;/a&gt;&lt;br /&gt;&lt;/li&gt;<br>&#123;% endfor %&#125;<br>&#123;% endblock %&#125;<br></pre></p>
+
+<p>As you can see from the example above, the code is almost identical. Again, the main difference being how you access methods. You'll also notice the cycle example I included, which can take any number of arguments, but you must also pass variables. Jinja doesn't assume everything is a string as Django does.</p>
+
+<p><strong>Update:</strong> It seems Django (since a few months) supports multiple strings in the cycle like Jinja. Django also now supports auto-escaping, so the |escape would be invalid in the Django example (unless you did <code>&#123;% autoescape off %&#125;</code>).</p>
+
+<p><h2>Filters and Template Tags</h2><br>One of my favorite features in Jinja are the filters and template tags. It provides a lot of useful filters, such as <code>capture</code> and filters are also much more flexible than they are in Django. Jinja filters and template tags are also all loaded into memory initially. There is no need to use <code>&#123;% load library %&#125;</code>. You can also set variables within your template if you want to optimize things, with <code>&#123;% set varname = value %&#125;</code>.</p>
+
+<p>Another feature with you'll find in Jinja are tests. Tests are simply that, a test on an element. Some common tests include <code>even</code>, <code>odd</code>, and <code>sameas</code>. Tests are used in the form of <code>varname is test [optional arguments]</code>. These can be used both within if statements, and variable calls.</p>
+
+<p><h2>Installing Jinja</h2><br>Jinja has been made pretty easy to install with Django. While this might change (a bit) if I have my way, it still works fairly well with a little bit of magic. So to begin the install, you first need to the grab the package. I recommend getting trunk, via setuptools, using <code>easy_install Jinja==dev</code>. Once you've installed Jinja, you're going to want to include a few lines at the bottom of <code>settings.py</code>.</p>
+{% highlight python %}
+# Initialize django.contrib.jinja
+from jinja.contrib import djangosupport
+djangosupport.configure()
+{% endhighlight %}
+
+These lines perform a little magic in the backend. They allow you to import Jinja from django.contrib.jinja, and include some conversion tools for Django template filters.
+
+To use Jinja within your page, you then need to <code>from django.contrib.jinja import render_to_response, render_to_string</code>. I haven't used Django's template engine in almost two years, so the syntax may not match, so here's an example:
+{% highlight python %}
+def myview(request):
+    return render_to_response('mytemplate.html', request=request)
+
+def myotherview(request):
+    context = {'myvar': True}
+    return render_to_response('mytemplate.html', context, request)
+{% endhighlight %}
+
+The <code>request</code> and <code>context</code> variables are completely optionally. If you pass request it will cause your context processors to render.
+
+<h3>Converting Django Filters</h3>
+Due to Jinja not implementing nearly as many defaults (most are edge cases, this is a design decision), converting Django filters is stupidly simple in Jinja. You first need to import the conversion function, and the registration function:
+
+{% highlight python %}
+from django.contrib.jinja import register, convert_django_filter
+{% endhighlight %}
+
+Once our functions are available, the rest is easy:
+
+{% highlight python %}
+# Import the filter we want to convert
+from django.template.defaultfilters import floatformat
+
+# Register the converted filter.
+register.filter(convert_django_filter(floatformat), 'floatformat')
+{% endhighlight %}
+<p>Simple, right? Now you just need to make sure this file gets imported somehow on initialization. The easiest way is to create a utilities app, or something similar, and load them there. E.g. <code>myproject.template.filters</code>. You'll then need to place this inside of your <code>INSTALLED_APPS</code> setting.</p>
+
+<p><h2>Wrap Us</h2><br>If you're not convinced yet, or you want to learn more, head over to the <a href="http://jinja.pocoo.org">Jinja website</a> and <a href="http://jinja.pocoo.org/documentation/">read the documentation</a>.</p>

@@ -1,0 +1,23 @@
+---
+wordpress_id: 57
+layout: post
+title: MySQLdb on Leopard
+wordpress_url: http://www.davidcramer.net/other/57/mysqldb-on-leopard.html
+---
+<p>As many people probably have, I ran across the problem of installing MySQLdb (Python) on Leopard today.</p>
+
+<p>The error:</p>
+
+<pre>In file included from /usr/local/mysql/include/mysql.h:43,<br>from _mysql.c:40:<br>/usr/include/sys/types.h:92: error: duplicate 'unsigned'<br>/usr/include/sys/types.h:92: error: two or more data types<br>in declaration specifiers<br>error: Setup script exited with error: command 'gcc' failed<br>with exit status 1<br></pre>
+
+<p>Luckily, there are people out there who know a lot more than me about these things, and someone had already found <a href="http://sysadmin.adnanwasim.com/2007/10/mysqldb-on-leopard.html">a fix</a>:</p>
+
+<blockquote><br>To get mysqldb working on leopard I <a href="http://forums.mysql.com/read.php?50,175059,179979#msg-179979">found</a> I had to edit _mysql.c and edit out the lines:
+
+<pre><br>#ifndef uint<br>#define uint unsigned int<br>#endif<br></pre>
+
+<p>I also had to edit site.cfg and mark threadsafe to False.</blockquote><br>After doing this, I managed to get MySQLdb to install, great! Not so fast, there was yet another problem:</p>
+
+<pre><br>Referenced from: .../_mysql.so<br>Reason: image not found<br></pre>
+
+<p>The solution:<br><pre><br>sudo ln -s /usr/local/mysql/lib/ /usr/local/mysql/lib/mysql<br></pre><br></blockquote></p>

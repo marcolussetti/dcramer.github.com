@@ -1,0 +1,42 @@
+---
+wordpress_id: 293
+layout: post
+title: Dealing with Automated Form Submission (Spam)
+wordpress_url: http://www.davidcramer.net/?p=293
+---
+<p>Recently I've been incorporating alternative techniques to Captcha to prevent automated form submission on websites, which is typically spam, or something else you don't want happening. I added our routines to the new iBegin's submission system today, and thought that I'd share with the world what we're doing. I'm also curious as to what everyone else does to solve these problems, without burdening the user.</p>
+
+<p>On Curse we implemented a middleware, which on any POST request, would confirm that a user had filled in a Captcha box within the last N hours, or had verified themselves as a human being in some other fashion (a text message was our method).</p>
+
+<p>Now in iBegin, and my websites, we use two different methods to prevent spam. One is the <em>honeypot</em> method, which insert a text field with no value. This field is hidden with CSS, and if a value is passed on submission we assume that it's a bot or something else trying to submit the form.</p>
+
+<p>The second method, requires the user have JavaScript enabled, but is very similar. We insert another text field, and set the value to 'hello'. This field is also hidden with CSS, and on submission, we verify the value is still 'hello'.</p>
+
+<p>If either of this fail, the form will throw a validation error, and of course log the attempt. So far, in all of my use-cases, it has worked very well, and the only "spam" I've seen are real users doing it themselves.</p>
+
+<p>So for a more technical look, here's a sample of the code from our submission page for business listings:</p>
+
+{% highlight html %}
+
+<p><div style="display:none;">
+These fields are present to prevent automated submission systems. If you see it, please do not fill in a value.
+<script type="text/javascript">var varname='nospam1';document.write('<inp'+'ut name="'+varname+'" type="text" value="1"/>');</script>
+<input type="text" name="nospam2" value=""/>
+</div>
+{% endhighlight %}
+
+And our Django form validation:
+{% highlight python %}
+
+if request.method == 'POST':
+form = BusinessForm(request.POST, initial=initial, hidden=hidden)
+
+if request.POST.get('nospam1', None) != 'hello':
+logging.info('`nospam1` value not set properly on form submission form %s' % (request.META.get('REMOTE_ADDR', '<noip>'),))
+form.errors['__all__'] = 'There was an unknown error submitting your request.'
+elif request.POST.get('nospam2'):
+logging.info('`nospam2` value set on form submission form %s' % (request.META.get('REMOTE_ADDR', '<noip>'),))
+form.errors['__all__'] = 'There was an unknown error submitting your request.'
+
+<p>if form.is_valid():
+{% endhighlight %}

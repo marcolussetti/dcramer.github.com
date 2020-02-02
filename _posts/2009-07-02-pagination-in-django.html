@@ -1,0 +1,214 @@
+---
+wordpress_id: 466
+layout: post
+title: Pagination in Django
+wordpress_url: http://www.davidcramer.net/?p=466
+categories: ["django"]
+---
+<p>One of the common things we do across projects is paginate querysets and lists. Django happens to provide a base Paginator for us, but it's usefulness is limited. It requires you to do the same repetitive tasks over and over. We're one of those groups of people who believe that not every URL need's to be rewritten into a retarded directory structure, and paged entries just so happen to be one of those. For most of our paging needs, we simply use ?p=N.</p>
+
+<p>So, let me start by saying I haven't looked into any existing pagination solutions, but I believe what we use is a great approach to handling pagination in a generic and reusable approach. In a typical pagination situation, you would do something like this:</p>
+
+{% highlight python %}
+paginator = paginator_class(queryset_or_list, limit)
+
+query_dict = request.GET.copy()
+if 'p' in query_dict:
+    del query_dict['p']
+
+try:
+    page = int(request.GET.get('page'))
+except (ValueError, TypeError), exc:
+    # show an error
+
+try:
+    pager = paginator.page(page)
+except (InvalidPage, EmptyPage):
+    # show an error
+
+if page > 5:
+    start = page-range_gap
+else:
+    start = 1
+
+if page < paginator.num_pages-range_gap:
+    end = page+range_gap+1
+else:
+    end = paginator.num_pages+1
+
+context = {
+    'query_string': query_dict.urlencode(),
+    'page_range': range(start, end),
+    'objects': pager.object_list,
+    'num_pages': self.num_pages,
+    'page': page,
+    'has_pages': self.num_pages > 1,
+    'has_previous': pager.has_previous(),
+    'has_next': pager.has_next(),
+    'previous_page': pager.previous_page_number(),
+    'next_page': pager.next_page_number(),
+    'is_first': page == 1,
+    'is_last': page == paginator.num_pages,
+}
+{% endhighlight %}
+
+Ok, well that's fine and all, but we don't want to do that a hundred times throughout our code. And going beyond the defaults, in our example above we use some additional information, such as the page range. What we ended up doing over at <a href="http://www.ibegin.com">iBegin</a>, <a href="http://www.lifestrm.com">Lifestrm</a>, and <a href="http://www.nibbits.com">Nibbits</a> are two solutions: a better pagination class to handle this for us, and a template tag to paginate so we can keep it out of the view.
+
+Let's start with our new pagination class. It involves creating a new method called <code>get_context()</code> which allows you to simply return your generic use-case context for a paginator.
+
+{% highlight python %}
+class BetterPaginator(Paginator):
+"""
+An enhanced version of the QuerySetPaginator.
+
+>>> my_objects = BetterPaginator(queryset, 25)
+>>> page = 1
+>>> context = {
+>>>     'my_objects': my_objects.get_context(page),
+>>> }
+"""
+def get_context(self, page, range_gap=5):
+    try:
+        page = int(page)
+    except (ValueError, TypeError), exc:
+        raise InvalidPage, exc
+
+    paginator = self.page(page)
+
+    if page > 5:
+        start = page-range_gap
+    else:
+        start = 1
+
+    if page < self.num_pages-range_gap:
+        end = page+range_gap+1
+    else:
+        end = self.num_pages+1
+
+    context = {
+        'page_range': range(start, end),
+        'objects': paginator.object_list,
+        'num_pages': self.num_pages,
+        'page': page,
+        'has_pages': self.num_pages > 1,
+        'has_previous': paginator.has_previous(),
+        'has_next': paginator.has_next(),
+        'previous_page': paginator.previous_page_number(),
+        'next_page': paginator.next_page_number(),
+        'is_first': page == 1,
+        'is_last': page == self.num_pages,
+    }
+
+    return context
+{% endhighlight %}
+
+Now, for a simple use case, let's look at our <code>paginate()</code> template tag:
+
+{% highlight python %}
+def paginate(request, queryset_or_list, limit=25, paginator_class=EndlessPaginator):
+    paginator = paginator_class(queryset_or_list, limit)
+
+    query_dict = request.GET.copy()
+    if 'p' in query_dict:
+        del query_dict['p']
+
+    context = {
+        'query_string': query_dict.urlencode(),
+        'paginator': paginator.get_context(request.GET.get('p', 1)),
+    }
+
+    paging = render_to_string('bone/paging.html', context)
+    return dict(objects=context['paginator']['objects'], paging=paging)
+# We use Jinja, so this is just a normal function, and it's registered as an object.
+register.object(paginate)
+{% endhighlight %}
+
+Now with the above we've done two things. First, we have completely stripped out the need for the paging logic in every single view. This cuts down our code by an enormous amount. Secondly, we've allowed pagination via templates (or just by using paginate() in your view), and it gives us a generic paging template, as well as our list of objects.
+
+Let's move on to what our template might look like:
+
+{% highlight jinja %}
+&#123;% if paginator.has_pages %&#125;
+&lt;div class=&quot;paging tr&quot;&gt;
+&#123;% if paginator.num_pages %&#125;
+&lt;div class=&quot;fl&quot;&gt;Page &#123;&#123; paginator.page &#125;&#125;&#123;% if paginator.num_pages %&#125; of &#123;&#123; paginator.num_pages &#125;&#125;&#123;% endif %&#125;&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;&#123;% if not paginator.is_first %&#125;&lt;a href=&quot;?&#123;&#123; query_string|escape &#125;&#125;&amp;p=1&quot;&gt;First&lt;/a&gt;&#123;% else %&#125;&lt;span&gt;First&lt;/span&gt;&#123;% endif %&#125;&lt;/li&gt;
+&lt;li&gt;&#123;% if paginator.has_previous %&#125;&lt;a href=&quot;?&#123;&#123; query_string|escape &#125;&#125;&amp;p=&#123;&#123; paginator.previous_page &#125;&#125;&quot;&gt;Previous&lt;/a&gt;&#123;% else %&#125;&lt;span&gt;Previous&lt;/span&gt;&#123;% endif %&#125;&lt;/li&gt;
+&#123;% for p in paginator.page_range %&#125;
+&lt;li&#123;% if p == paginator.page %&#125; class=&quot;active&quot;&#123;% endif %&#125;&gt;&lt;a href=&quot;?&#123;&#123; query_string|escape &#125;&#125;&amp;p=&#123;&#123; p &#125;&#125;&quot;&gt;&#123;&#123; p &#125;&#125;&lt;/a&gt;&lt;/li&gt;
+&#123;% endfor %&#125;
+&lt;li&gt;&#123;% if paginator.has_next %&#125;&lt;a href=&quot;?&#123;&#123; query_string|escape &#125;&#125;&amp;p=&#123;&#123; paginator.next_page &#125;&#125;&quot;&gt;Next&lt;/a&gt;&#123;% else %&#125;&lt;span&gt;Next&lt;/span&gt;&#123;% endif %&#125;&lt;/li&gt;
+&#123;% if paginator.num_pages %&#125;
+&lt;li&gt;&#123;% if not paginator.is_last %&#125;&lt;a href=&quot;?&#123;&#123; query_string|escape &#125;&#125;&amp;p=&#123;&#123; paginator.num_pages &#125;&#125;&quot;&gt;Last&lt;/a&gt;&#123;% else %&#125;&lt;span&gt;Last&lt;/span&gt;&#123;% endif %&#125;&lt;/li&gt;
+&#123;% endif %&#125;
+&lt;/ul&gt;
+&#123;% else %&#125;
+&lt;ul class=&quot;basic&quot;&gt;
+&lt;li class=&quot;fl&quot;&gt;&#123;% if paginator.has_previous %&#125;&lt;a href=&quot;?&#123;&#123; query_string|escape &#125;&#125;&amp;p=&#123;&#123; paginator.previous_page &#125;&#125;&quot;&gt;Previous Page&lt;/a&gt;&#123;% else %&#125;&lt;span&gt;Previous Page&lt;/span&gt;&#123;% endif %&#125;&lt;/li&gt;
+&lt;li class=&quot;fr&quot;&gt;&#123;% if paginator.has_next %&#125;&lt;a href=&quot;?&#123;&#123; query_string|escape &#125;&#125;&amp;p=&#123;&#123; paginator.next_page &#125;&#125;&quot;&gt;Next Page&lt;/a&gt;&#123;% else %&#125;&lt;span&gt;Next Page&lt;/span&gt;&#123;% endif %&#125;&lt;/li&gt;
+&lt;/ul&gt;
+&#123;% endif %&#125;
+&lt;/div&gt;
+&#123;% endif %&#125;
+{% endhighlight %}
+
+As you'll see we have quite a bit of logic in here. This allows for two different scenarios: numeric paging, and what we call endless paging.
+
+Let's talk a bit more about endless paging. In some of our use cases, we simply don't want to count how many pages and entries there are in the database because it is just inefficient, and meaningless. When you have 100k pages (let's take Google search for example), no one cares about what's on the last page, unless it's sorted. And even then, you can simply reverse the sort. So to compensate for this, we extend our <code>BetterPaginator</code> class and create <code>EndlessPaginator</code>.
+
+{% highlight python %}
+class EndlessPage(Page):
+    def __init__(self, *args, **kwargs):
+        super(EndlessPage, self).__init__(*args, **kwargs)
+        self._has_next = self.paginator.per_page < len(self.object_list)
+        self.object_list = self.object_list[:self.paginator.per_page]
+
+    def has_next(self):
+        return self._has_next
+
+class EndlessPaginator(BetterPaginator):
+    def page(self, number):
+    "Returns a Page object for the given 1-based page number."
+    try:
+        number = int(number)
+    except ValueError:
+        raise PageNotAnInteger('That page number is not an integer')
+    bottom = (number - 1) * self.per_page
+    top = bottom + self.per_page + 5
+    _page = EndlessPage(self.object_list[bottom:top], number, self)
+    if not _page.object_list:
+        if number == 1 and self.allow_empty_first_page:
+            pass
+        else:
+            raise EmptyPage('That page contains no results')
+    return _page
+
+    def get_context(self, page):
+        try:
+            page = int(page)
+        except (ValueError, TypeError), exc:
+            raise InvalidPage, exc
+
+        paginator = self.page(page)
+
+        context = {
+            'objects': paginator.object_list,
+            'page': page,
+            'has_previous': paginator.has_previous(),
+            'has_next': paginator.has_next(),
+            'previous_page': paginator.previous_page_number(),
+            'next_page': paginator.next_page_number(),
+            'is_first': page == 1,
+            'has_pages': paginator.has_next() or paginator.has_previous(),
+            'is_last': not paginator.has_next(),
+        }
+
+        return context
+{% endhighlight %}
+
+<p>The endless paging simply tells us "is there a next page?". It does this by selecting N+X on your result set. If there are additional entries not present on the page, it simply says "there are more results available". It comes in handy when you simply want to show a "More results" on things such a search, or massive querysets.</p>
+
+<p>So to wrap it up, we introduced 2 major concepts. The first being adding context to pagination to decrease the amount of code we write, and the latter being endless pagination, allowing us to do much more efficient paging mechanisms.</p>
+
+<p>What have you done to simplify your pagination in Django?</p>

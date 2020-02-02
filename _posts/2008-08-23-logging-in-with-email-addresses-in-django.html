@@ -1,0 +1,40 @@
+---
+wordpress_id: 224
+layout: post
+title: Logging In With Email Addresses in Django
+wordpress_url: http://www.davidcramer.net/?p=224
+---
+<p>One of the tasks that seems to come up every single project we do, is changing the auth backend to accept email addresses. Since it's such a common task for us, it can't be that rare to want this functionality. So, here's a quick and simply backend which accomplishes this, using the built-in <em>django.contrib.auth</em> module.</p>
+
+{% highlight python %}
+from django.conf import settings
+from django.contrib.auth.models import User
+
+class EmailOrUsernameModelBackend(object):
+    def authenticate(self, username=None, password=None):
+        if '@' in username:
+            kwargs = {'email': username}
+        else:
+            kwargs = {'username': username}
+        try:
+            user = User.objects.get(**kwargs)
+            if user.check_password(password):
+                return user
+        except User.DoesNotExist:
+            return None
+
+    def get_user(self, user_id):
+        try:
+            return User.objects.get(pk=user_id)
+        except User.DoesNotExist:
+            return None
+{% endhighlight %}
+
+Then in your settings:
+
+{% highlight python %}
+AUTHENTICATION_BACKENDS = (
+    'myproject.accounts.backends.EmailOrUsernameModelBackend',
+    'django.contrib.auth.backends.ModelBackend'
+)
+{% endhighlight %}

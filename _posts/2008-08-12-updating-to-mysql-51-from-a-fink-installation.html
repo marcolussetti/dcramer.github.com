@@ -1,0 +1,19 @@
+---
+wordpress_id: 188
+layout: post
+title: Updating to MySQL 5.1 from a Fink Installation
+wordpress_url: http://www.davidcramer.net/?p=188
+---
+<p>Today I went through the fun task of updating my local MySQL installation to 5.1 in order to try out then new partitioning. The challenge here, was that I wanted to keep everything for fink in order (the same paths, and for the most part, the same options).</p>
+
+<p>So first, you need to download the <a href="http://dev.mysql.com/downloads/mysql/5.1.html#source">source</a> for MySQL 5.1. Don't get the Mac OS installer or tar!</p>
+
+<p>Untar this to wherever is convenient, and pop open a terminal. Now we need to run configure with the crazy amount of options there are to make it work with fink. One issue I did find while doing this is that it didn't want to detect fink's readline, so I ended up configuring it with the included readline.</p>
+
+<pre><br>./configure --enable-assembler --with-extra-charsets=complex --enable-thread-safe-client --with-big-tables--with-innodb --with-archive-storage-engine --with-big-tables --with-embedded-server --enable-local-infile --disable-dependency-tracking --with-mysqld-user=mysql --mandir=/sw/share/man --infodir=/sw/share/info --localstatedir=/sw/var/mysql --libexecdir=/sw/sbin --sysconfdir=/sw/etc --bindir=/sw/bin --datadir=/sw/share/mysql --includedir=/sw/include/mysql --libdir=/sw/lib/mysql --with-readline --with-partition && make<br></pre>
+
+<p>This does *not* include all of the same options. I removed some of the storage engines which I will never use, including ndb, blackhole, federated, and the yassl extension which was deprecated. This also does not include ssl.</p>
+
+<p>Now go grab some lunch, the configure is going to take a good 30 minutes depending on how powerful your Mac is.</p>
+
+<p>The rest is simply your standard <code>sudo make install</code>.</p>

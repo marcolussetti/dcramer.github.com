@@ -1,0 +1,9 @@
+---
+wordpress_id: 78
+layout: post
+title: Turn MySQL Completely Into UTF-8
+wordpress_url: http://www.davidcramer.net/code/mysql/78/turn-mysql-completely-into-utf-8.html
+---
+<p>One of the developers at Curse was setting up a new database server today, and was trying to set all the defaults to UTF-8 for table creation/etc. While I knew about setting those, I always knew you still had to send the set names argument on your connection initialization. Well, it turns out, you don't:</p>
+
+<pre><br>collation_server=utf8_unicode_ci<br>character_set_server=utf8<br>default-character-set=utf8<br>init-connect='SET NAMES utf8'<br></pre><br>

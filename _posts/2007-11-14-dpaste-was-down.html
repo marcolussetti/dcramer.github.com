@@ -1,0 +1,11 @@
+---
+wordpress_id: 58
+layout: post
+title: dpaste was down
+wordpress_url: http://www.davidcramer.net/code/58/dpaste-was-down.html
+---
+<p>So today, being the usual day, I needed a pastebin, that wasn't <a href="http://www.pastebin.com">slow</a>, or <a href="http://www.pastebin.ca">bogged up</a> with ads and stuff. I hopped on over to <a href="http://www.dpaste.com/">dpaste.com</a> as I usually would, to find that the domain was temporarily expired (it's back up now). Being that the site was down for a little bit, and the project was small, I took an hour to write a pastebin (in PHP, I know).</p>
+
+<p>So, here you have it, with enough features to hold you over, and robust enough to be slashdotted: <a href="http://www.pastethat.com/">PasteThat.</a></p>
+
+<p>The featureset:<br><ul><br><li>Pastes are generated with a unique key -- I myself don't want random people reading my pastes :)</li><br><li>Pastes never expire -- there's really no storage limitation on my system</li><br><li>It uses the Geshi syntax highlighter -- which seems slow, so I'll have to optimize it if people actually use the site</li><br><li>It will remember your name and syntax if you let it set a cookie.</li><br><li>It automatically adjusts the size of the textarea based on your browser window's size.</li><br><li>You can post follow ups (and with comments as soon as I get home), as well as view followups for a post.</li><br></ul><br>TODO (when I feel like it and am not busy with work)<br><ul><br><li>Add tags to each paste</li><br><li>Add a public boolean for each paste</li><br><li>Allow people to browse public pastes by tags/date/traffic</li><br></ul><br>The simple goal: A robust and simplified pastebin that has many uses.. and I won't ever have to worry about not being able to use.</p>

@@ -1,0 +1,46 @@
+---
+wordpress_id: 118
+layout: post
+title: File Fields without Renaming Duplicates
+wordpress_url: http://www.davidcramer.net/?p=118
+---
+<p>I had a need for a file storage system, which would keep the original file name in tact, no matter what. By default, Django's FileField's only allow you to base the directory name on the datetime. While this is good for the most part, you can still have duplicate file names if they are added on the same day.</p>
+
+<p>So, after a few headaches, here's what I call the <code>UsefulFileField</code>:</p>
+
+{% highlight python %}
+import os.path
+import time
+from django.db import models
+
+class UsefulFileField(models.FileField):
+    _path = None
+
+    def get_filename(self, filename):
+        f = os.path.join(self.get_directory_name(), os.path.basename(filename))
+        return os.path.normpath(f)
+
+    def get_directory_name(self):
+        if self._path is None:
+            self._path = os.path.normpath(self.upload_to % tuple(str(float(time.time())).split('.')))
+        return self._path
+
+class UsefulImageField(models.ImageField):
+    _path = None
+
+    def get_filename(self, filename):
+        f = os.path.join(self.get_directory_name(), os.path.basename(filename))
+        return os.path.normpath(f)
+
+    def get_directory_name(self):
+        if self._path is None:
+            self._path = os.path.normpath(self.upload_to % tuple(str(float(time.time())).split('.')))
+        return self._path
+{% endhighlight %}
+
+An example use:
+
+{% highlight python %}
+class MyModel(models.Model):
+    screenshot  = UsefulImageField(upload_to="screenshots/%s/%s/", blank=True, null=True)
+{% endhighlight %}

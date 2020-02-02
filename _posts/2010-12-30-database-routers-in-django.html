@@ -1,0 +1,119 @@
+---
+layout: post
+title: Database Routers in Django
+categories: ["django", "disqus"]
+---
+<p>Whether you're doing master / slave, or partitioning data, when your product gets large enough you'll need the ability to route data to various nodes in your database. Django (as of 1.2) out of the box provides a pretty cool solution called a Database Router. Here at DISQUS we have a large set of data, and one this of course brings the need to implement some of these fairly standard solutions.</p>
+
+<p>The first solution that many companies will choose is a master / slave setup. This is the most common of all database scaling techniques and is very easy to setup in modern RDBMS solutions. In Django, this also comes very easy with a few lines of code:</p>
+
+{% highlight python %}
+class MasterSlaveRouter(object):
+    "Sends reads to 'slave' and writes to 'default'."
+    def db_for_write(self, model, **hints):
+        return 'default'
+
+    def db_for_read(self, model, **hints):
+        return 'slave'
+{% endhighlight %}
+
+<p>Now while this won't scale very far (if you're not using a proxy or bouncer, this is a single slave), it also brings a lot of other problems with it. The dreaded replication lag will hit you no matter your size (ever notice Facebook not being in "sync"), and can be fairly difficult to work around. Not going to dive into details here, but there are many ways to lessen visibility of this delay by using caching as well as doing some of your reads off your master nodes.</p>
+
+<p>The other solution I want to talk about is partitioning. We're going to specifically talk about vertical partitioning, or the act of separating data by purpose. This is another very easy to implement solution which just requires you to move tables to other servers. Again, in Django this is very easy to implement with routers:</p>
+
+{% highlight python %}
+class PartitionByApp(object):
+    "Send reads to an app-specific alias, and writes to the 'default'."
+    def db_for_write(self, model, **hints):
+        return 'default'
+
+    def db_for_read(self, model, **hints):
+        return model._meta.app_label
+{% endhighlight %}
+
+<p>We're currently working on splitting of a fairly large set of data over here, so we whipped up a little bit more flexible solution using routers. Our needs were simple: assign an app (or a model) to a separate database cluster. Here's what we came up with:</p>
+
+{% highlight python %}
+from django.conf import settings
+
+class PrimaryRouter(object):
+    _lookup_cache = {}
+
+    default_read = None
+    default_write = 'default'
+
+    def get_db_config(self, model):
+        "Returns the database configuration for `model`"
+        if model not in self._lookup_cache:
+            conf = settings.DATABASE_CONFIG['routing']
+
+            app_label = model._meta.app_label
+            module_name = model._meta.module_name
+            module_label = '%s.%s' % (app_label, module_name)
+
+            if module_label in conf:
+                result = conf[module_label]
+            elif app_label in conf:
+                result = conf[app_label]
+            else:
+                result = {}
+            self._lookup_cache[model] = result
+        return self._lookup_cache[model]
+
+    def db_for_read(self, model, **hints):
+        db_config = self.get_db_config(model)
+        return db_config.get('read', db_config.get('write', self.default_read))
+
+    def db_for_write(self, model, **hints):
+        db_config = self.get_db_config(model)
+        return db_config.get('write', self.default_write)
+
+    def allow_relation(self, obj1, obj2, **hints):
+        # Only allow relations if the models are on the same database
+        db_config_1 = self.get_db_config(obj1)
+        db_config_2 = self.get_db_config(obj2)
+        return db_config_1.get('write') == db_config_2.get('write')
+
+    def allow_syncdb(self, db, model):
+        db_config = self.get_db_config(model)
+        allowed = db_config.get('syncdb')
+        # defaults to both read and write servers
+        if allowed is None:
+            allowed = filter(None, [self.db_for_read(model),
+                                    self.db_for_write(model)])
+        if allowed:
+            # FIX: TEST_MIRROR passes the mirrored alias, and not the originating
+            for k in allowed:
+                if db == k:
+                    return True
+                if db == settings.DATABASES[k].get('TEST_MIRROR') or k:
+                    return True
+            return False
+{% endhighlight %}
+
+<p>To use this, we simply define a key called <code>routing</code> in our <code>DATABASE_CONFIG</code>.</p>
+
+{% highlight python %}
+# Note: this isn't how we partition our models, its just an example
+DATABASE_CONFIG = {
+    'routing': {
+        # defaults for all models in forums
+        'forums': {
+            'write': 'default',
+            'read': 'default.slave',
+        },
+        # override for forums.Forum
+        'forums.forum': {
+            'write': 'cluster2',
+            'read': 'cluster2.slave',
+        },
+        # override for forums.Post
+        'forums.post': {
+            'write': 'default',
+            'read': 'default.slave',
+        },
+    },
+}
+{% endhighlight %}
+
+<p>A future post will cover how we've started moving to a <code>dictConfigurator</code> to make inheritance in many of our settings much easier.</p>

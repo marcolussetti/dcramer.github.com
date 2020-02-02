@@ -1,0 +1,105 @@
+---
+wordpress_id: 433
+layout: post
+title: Setting up Django and Sphinx Full-text Search (django-sphinx)
+wordpress_url: http://www.davidcramer.net/?p=433
+categories: ["django"]
+---
+<p>A while back I posted a quick, and very simplistic guide to setting up django-sphinx within your project. Since that time we've gained a lot of use of the platform. It came to my attention today that the <a href="http://groups.google.com/group/django-nyc">django-nyc</a> group was going to do a presentation on how to setup sphinx within your Django project. This, and many, many questions later, I've decided to rewrite my guide to setting up Sphinx with your project.<br><!--more--></p>
+
+<p><h2>Install Sphinx</h2></p>
+
+<p>So to get started we're going to need to download and install Sphinx. django-sphinx supports Sphinx 0.97 and newer, so go ahead and grab the latest version from <a href="http://sphinxsearch.com/downloads.html">http://sphinxsearch.com/downloads.html</a>. An install guide for Sphinx can be found <a href="http://sphinxsearch.com/docs/current.html#installation">under Documentation</a>.</p>
+
+<p><h2>Install django-sphinx</h2></p>
+
+<p>Once you've gotten past the initial setup of Sphinx, you're going to need to install the django-sphinx package. This is fairly simple (as it's just a python package):</p>
+
+<pre><br>svn checkout http://django-sphinx.googlecode.com/svn/trunk/ django-sphinx<br>cd django-sphinx<br>sudo python setup.py install<br></pre>
+
+<p>Please note, while you can grab django-sphinx on easy_install, it's not updated very often.</p>
+
+<p><h2>Configure Your Models</h2></p>
+
+<p>Next up we need to identify any models which we'll be using django-sphinx on directly, and add a manager to them:</p>
+
+{% highlight python %}
+
+from djangosphinx import SphinxSearch
+
+# A sample model from iBegin
+class City(models.Model):
+name            = models.CharField(max_length=32)
+aliases         = SeparatedValuesField(blank=True, null=True)
+slug            = models.SlugField(blank=True)
+country         = models.ForeignKey(Country)
+state           = models.ForeignKey(State, blank=True, null=True)
+listings        = models.PositiveIntegerField(editable=False, default=0)
+
+latitude        = models.DecimalField(max_digits=9, decimal_places=6, editable=False, default=0, blank=True)
+longitude       = models.DecimalField(max_digits=9, decimal_places=6, editable=False, default=0, blank=True)
+
+date_added      = CreatedDateTimeField(editable=False)
+date_changed    = ModifiedDateTimeField(editable=False)
+
+class Meta:
+unique_together = (('country', 'state', 'slug'), ('country', 'state', 'name'))
+db_table = 'cities'
+
+<p>search = SphinxSearch(
+index='cities', # defaults to cities either way
+weights={ # individual field weighting, this is optional
+'name': 100,
+'aliases': 90,
+}
+)
+{% endhighlight %}
+<p><h2>Building Indexes</h2></p>
+
+<p>You've now installed both Sphinx, and django-sphinx, and need to configure your sources. While we can't do all of your configuration for you, we can help you with some of it. The fastest way to do this is with the <code>generate_sphinx_config</code> command.</p>
+
+<p>So, let's try it:</p>
+
+<pre><br>[dcramer@local] ./manage.py generate_sphinx_config cities >> sphinx.conf<br>[dcramer@local] cat sphinx.conf
+
+<p>[Clipped]</p>
+
+<p>source cities<br>{<br>type                = mysql<br>strip_html          = 0<br>index_html_attrs    =<br>sql_host            = localhost<br>sql_user            = root<br>sql_pass            = ***********<br>sql_db              = ibegin_iplatform<br>sql_port            =<br>log                 = /var/log/sphinx/searchd.log</p>
+
+<p>sql_query_pre       =<br>sql_query_post      =<br>sql_query           = \<br>SELECT id, name, aliases, slug, country_id, state_id, listings, latitude, longitude, date_added, date_changed \<br>FROM cities<br>sql_query_info      = SELECT * FROM `cities` WHERE `id` = $id</p>
+
+<p># ForeignKey's<br>sql_group_column    = country_id<br>sql_group_column    = state_id<br>sql_group_column    = listings</p>
+
+<p># DateField's and DateTimeField's<br>sql_date_column     = date_added<br>sql_date_column     = date_changed<br>}</p>
+
+<p>index cities<br>{<br>source          = cities<br>path            = /var/data/cities<br>docinfo         = extern<br>morphology      = none<br>stopwords       =<br>min_word_len    = 2<br>charset_type    = sbcs<br>min_prefix_len  = 0<br>min_infix_len   = 0<br>}<br></pre></p>
+
+<p>This generates a fairly basic, and standard source and index for any models that have a SphinxSearch manager attached to them in the requested app. Please note, that this is not optimized, and you will most likely want to clean up the configuration to remove anything that you don't need included in the search. You also are going to need to update your paths for logs and data files.</p>
+
+<p>Whenever you add a new index, you will also need to index it:</p>
+
+<pre>indexer cities --config=sphinx.conf</pre>
+
+<p>Or if you already had the index and are simply updating it:</p>
+
+<pre>indexer cities --rotate --config=sphinx.conf</pre>
+
+<p><h2>Using the Data</h2></p>
+
+<p>The rest is simply querying your model, similar to how you'd do it with a normal QuerySet manager:</p>
+
+<pre><br>results = City.search.query('new york')
+
+<p># Unlike Django QuerySet's, Sphinx will never evaluate<br># the results until it's sliced.<br>print results<br>&gt;&gt; &lt;SphinxQuerySet instance&gt;</p>
+
+<p>print list(results)<br>&gt;&gt; [&lt;City: New York Mills&gt;,<br>&lt;City: West New York&gt;,<br>&lt;City: New York&gt;,<br>&lt;City: New York Mills&gt;,<br>&lt;City: New York&gt;,<br>&lt;City: New York City&gt;,<br>&lt;City: New York&gt;,<br>&lt;City: New Jersey and New York City&gt;,<br>&lt;City: New york&gt;,<br>&lt;City: new york&gt;,<br>&lt;City: York New Salem&gt;]</p>
+
+<p># We have a meta attribute on the QuerySet to give additional data<br>print results._sphinx<br>&gt;&gt; {'total': 11,<br>'total_found': 11,<br>'words': [{'docs': 341, 'hits': 342, 'word': 'new'},<br>{'docs': 40, 'hits': 40, 'word': 'york'}]}</p>
+
+<p># As well as on each individual instance<br>print results[0]._sphinx<br>&gt;&gt; {'id': u'5246', 'weight': 200, 'attrs': {'state_id': 3, 'country_id': 0}}</p>
+
+<p># You can also access this via .sphinx if you don't have a<br># sphinx attribute on your model already.<br>print results[0].sphinx<br>&gt;&gt; {'id': u'5246', 'weight': 200, 'attrs': {'state_id': 3, 'country_id': 0}}<br></pre></p>
+
+<p>For additional information, please be sure to check out the following resources:</p>
+
+<ul><li><a href="http://sphinxsearch.com/">Official Sphinx Website</a></li><li><a href="http://code.google.com/p/django-sphinx/">django-sphinx Project Page</a></li><li><a href="http://groups.google.com/group/django-sphinx">django-sphinx Group</a></li></ul>

@@ -1,0 +1,27 @@
+---
+wordpress_id: 61
+layout: post
+title: Handling Cache Invalidation
+wordpress_url: http://www.davidcramer.net/code/61/python-and-php-memcached-client-comparisons.html
+---
+<p>In preparation for a possible change in Curse's caching strategy, I took the time today to do some benchmarks of memcached. The benchmarks were taken using the standard python-memcached library as well as 3rd party library for PHP (I couldn't get Leopard working with the PECL package). It turns out, Python is actually <a href="http://www.pastethat.com/?G9lDG">fairly fast</a> in its memcached client.</p>
+
+<p>The idea behind our new strategy, is something that I've seen talked about quite a bit (once I started researching), row-level cache objects.</p>
+
+<p>Typically people store a group of objects in a cache, as we are still. You end up with many different groups of many objects. In most cases, you're going to have overlapping, where you have the same objects in many different caches.</p>
+
+<p>The major problem comes in when you need to do invalidation. How do you invalidate all caches containing X object? There are several solutions around, none of which are very concrete in how they can solve every problem you can possibly think of.  Many languages such as .NET also employ their own solutions for caching.</p>
+
+<p>Using Django, with memcached, offers an interesting twist to the row-level object caching. The plan would be to design a "CachedModel" which would simply say "all requests to this model need to hit the cache". Now that we have a model that is going to cache everything, we need to know how we're going to cache it, and more importantly, how we're going to (automatically) invalidate it.</p>
+
+<p>Invalidation has been one of the most difficult tasks we've faced in the last year. The original approach was to manually delete keys (yes, not a good idea) that we define in some routine. What the new system would accomplish is automatically updating any cache immediately when an object is changed, or removed.</p>
+
+<p>There are two systems which we must take into consideration:<br><ul><br><li>Lists of objects (such as a list of articles)</li><br><li>Individual objects (a single article)</li><br></ul><br>Handling invalidation on the single object caches is easy, so why not leave at that? The plan is simply, just that. Invalidation will simply be invalidating the single object in the cache.</p>
+
+<p>To solve the issue of lists of objects needing invalidation we transparently handle this by simply caching a list of references (say its a list of 10 cache keys, which you then do a bulk get on). When you update the title of your article, you simply update its object cache, and any cache that references is going to be pulling in that object cache so it is immediately updated as well.</p>
+
+<p>Removing objects is also fairly simply. When we are polling for our list of references, we're going to need to see what's missing. When we find missing objects, we try to get them (query the database). If they fail, our cache is no longer valid. Easy, ya?</p>
+
+<p>All in all, this would potentially solve all of our current caching needs. It doesn't handle every case (such as invalidating a list of new objects when a new one is added), but those could be handled with dependencies or signals.</p>
+
+<p>If you have your own caching stories, or solutions, please share them! I'd be glad to hear from anyone else who has similar problems, or even larger problems.</p>

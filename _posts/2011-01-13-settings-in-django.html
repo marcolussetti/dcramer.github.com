@@ -1,0 +1,173 @@
+---
+layout: post
+title: Settings in Django
+categories: ["django", "disqus"]
+---
+
+<p>I want to talk a bit about how we handle our large amounts of application configuration over at DISQUS. Every app has it, and it seems like theres a hundred different ways that you can manage it. While I'm not going to say ours is the best way, it has allowed us a very flexible application config under our varying situations.</p>
+
+<h4>Managing Local Settings</h4>
+
+<p>First off, we all know how Django does this by default. A simple settings.py file which is loaded at runtime. It works fairly well in very basic apps, until you start relying on a database, or some other configuration value which changes between production and development. Typically, once you've hit this, the first thing you do is add a <code>local_settings</code>. This generally is not part of our VCS and contains any settings specific to your environment. To achieve this, you simply need to adjust your <code>settings.py</code> to include the following (at the end of the file, ideally):</p>
+
+{% highlight python %}
+try:
+    from local_settings import *
+except ImportError, e:
+    print 'Unable to load local_settings.py:', e
+{% endhighlight %}
+
+<h4>Refactoring Settings</h4>
+
+<p>Now we've solved the very basic case, and this tends to get you quite a bit of breathing room. Eventually you may get to the point where you're wanting some sort of globalized settings, generic development settings, or you just want to tweak settings based on their defaults. To achieve this we're going to re architect settings as a whole. For starters, let's move everything into a <code>conf</code> module in your python app. Try something like the following:</p>
+
+<pre>
+project/conf/__init__.py
+project/conf/settings/__init__.py
+project/conf/settings/default.py
+project/conf/settings/dev.py
+</pre>
+
+<p>To make all this play nice, you're going to want to shift all of your current <code>settings.py</code> code into <code>project/conf/settings/default.py</code>. This will give your basis to work from, and allow you to easily inherit from it (think OO). Once this is moved, let's refactor our new <code>settings.py</code>. Bear with me, as we're going to throw a lot out you all at once now:</p>
+
+{% highlight python %}
+import os
+
+## Import our defaults (globals)
+
+from disqus.conf.settings.default import *
+
+## Inherit from environment specifics
+
+DJANGO_CONF = os.environ.get('DJANGO_CONF', 'default')
+if DJANGO_CONF != 'default':
+    module = __import__(DJANGO_CONF, globals(), locals(), ['*'])
+    for k in dir(module):
+        locals()[k] = getattr(module, k)
+
+## Import local settings
+
+try:
+    from local_settings import *
+except ImportError:
+    import sys, traceback
+    sys.stderr.write("Warning: Can't find the file 'local_settings.py' in the directory containing %r. It appears you've customized things.\nYou'll have to run django-admin.py, passing it your settings module.\n(If the file settings.py does indeed exist, it's causing an ImportError somehow.)\n" % __file__)
+    sys.stderr.write("\nFor debugging purposes, the exception was:\n\n")
+    traceback.print_exc()
+
+## Remove disabled apps
+
+if 'DISABLED_APPS' in locals():
+    INSTALLED_APPS = [k for k in INSTALLED_APPS if k not in DISABLED_APPS]
+
+    MIDDLEWARE_CLASSES = list(MIDDLEWARE_CLASSES)
+    DATABASE_ROUTERS = list(DATABASE_ROUTERS)
+    TEMPLATE_CONTEXT_PROCESSORS = list(TEMPLATE_CONTEXT_PROCESSORS)
+
+    for a in DISABLED_APPS:
+        for x, m in enumerate(MIDDLEWARE_CLASSES):
+            if m.startswith(a):
+                MIDDLEWARE_CLASSES.pop(x)
+
+        for x, m in enumerate(TEMPLATE_CONTEXT_PROCESSORS):
+            if m.startswith(a):
+                TEMPLATE_CONTEXT_PROCESSORS.pop(x)
+
+        for x, m in enumerate(DATABASE_ROUTERS):
+            if m.startswith(a):
+                DATABASE_ROUTERS.pop(x)
+{% endhighlight %}
+
+<p>Let's try to cover a bit of what we've achieved with our new <code>settings.py</code>. First, we're inheriting from <code>conf/settings/default.py</code>, followed up by the ability to specify an additional set of overrides using the <code>DJANGO_CONF</code> environment variable (this would work much like DJANGO_SETTINGS_MODULE). Next we're again pulling in our <code>local_settings.py</code>, and finally, we're pulling in a setting called <code>DISABLED_APPS</code>. This final piece let's us (within local_settings and all) specify applications which should be disabled in our environment. We found it useful to pull things like <a href="http://github.com/dcramer/django-sentry">Sentry</a> out of our tests and development environments.</p>
+
+<h4>Improving Local Settings</h4>
+
+<p>Now that we've got a nice basic setup for our application configuration, let's talk about a few other nice-to-haves that we can pull off with this. Remember how we mentioned it would be nice to inherit from defaults, even in local settings? Well now you can do this, as your settings are stored elsewhere (likely in <code>default.py</code>). Take this piece of code as an example:</p>
+
+{% highlight python %}
+from project.conf.settings.dev import *
+
+# See the above file for various settings which you shouldn't need to modify :)
+# Adjust them by placing the new values in this file
+
+# enable solr
+SOLR_ENABLED = True
+
+# disable sentry
+DISABLED_APPS = ['sentry']
+{% endhighlight %}
+
+<p>We also recommend taking your <code>local_settings.py</code> and making a copy as <code>example_local_settings.py</code> within your repository.</p>
+
+<h4>Development Settings</h4>
+
+<p>You'll see we recommended a <code>dev.py</code> settings module above, and again reference it here in our <code>local_settings.py</code>. Taking some examples of how we achieve a standardized setup at DISQUS, here's something to get you started:</p>
+
+{% highlight python %}
+# Development environment settings
+
+from project.conf.settings.default import *
+
+import getpass
+
+TEMPLATE_LOADERS = (
+    # Remove cached template loader
+    'django.template.loaders.filesystem.Loader',
+    'django.template.loaders.app_directories.Loader',
+)
+
+DISABLED_APPS = ['sentry.client', 'sentry']
+
+DEBUG = True
+
+DATABASE_PREFIX = ''
+DATABASE_USER = getpass.getuser()
+DATABASE_PASSWORD = ''
+DATABASE_HOST = ''
+DATABASE_PORT = None
+
+for k, v in DATABASES.iteritems():
+    DATABASES[k].update({
+        'NAME': DATABASE_PREFIX + v['NAME'],
+        'HOST': DATABASE_HOST,
+        'PORT': DATABASE_PORT,
+        'USER': DATABASE_USER,
+        'PASSWORD': DATABASE_PASSWORD,
+        'OPTIONS': {
+            'autocommit': False
+        }
+    })
+
+# django-devserver: http://github.com/dcramer/django-devserver
+try:
+    import devserver
+except ImportError:
+    pass
+else:
+    INSTALLED_APPS = INSTALLED_APPS + (
+        'devserver',
+    )
+    DEVSERVER_IGNORED_PREFIXES = ['/media', '/uploads']
+    DEVSERVER_MODULES = (
+        # 'devserver.modules.sql.SQLRealTimeModule',
+        # 'devserver.modules.sql.SQLSummaryModule',
+        # 'devserver.modules.profile.ProfileSummaryModule',
+        # 'devserver.modules.request.SessionInfoModule',
+        # 'devserver.modules.profile.MemoryUseModule',
+        # 'devserver.modules.profile.LeftOversModule',
+        # 'devserver.modules.cache.CacheSummaryModule',
+    )
+
+
+INSTALLED_APPS = (
+    'south',
+) + INSTALLED_APPS
+
+MIDDLEWARE_CLASSES = MIDDLEWARE_CLASSES + (
+    'disqus.middleware.profile.ProfileMiddleware',
+)
+
+CACHE_BACKEND = 'locmem://'
+{% endhighlight %}
+
+<p>Hopefully this will save you as much time as it's saved us. Simplifying settings like above has made it so a new developer, or a new development machine can be up and running with little to no changes to the application configuration itself.</p>

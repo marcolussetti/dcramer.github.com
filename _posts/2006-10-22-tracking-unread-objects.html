@@ -1,0 +1,21 @@
+---
+wordpress_id: 27
+layout: post
+title: Tracking Unread Objects
+wordpress_url: http://www.davidcramer.net/other/27/tracking-unread-objects.html
+---
+<p>Recently I've had to develop forum software for a website, and one problem we ran into was the most robust way to track unread posts.</p>
+
+<p>After giving this some thought, I came up with two feasable options. We'll start by taking a look at the first.</p>
+
+<p><strong>Pure Post Tracking</strong></p>
+
+<p>Method one is to create a table:<br><blockquote>"forum_views"<br>postID (IntegerField)<br>userID (IntegerField)<br>Index (postID, userID)</blockquote><br>Everytime a user would view a post (that was marked as unread) we would insert a row into the table. To output the list of posts, or threads, we would be join the thread with this table.</p>
+
+<p>Cons:<br><ul><br><li>In order to show the list of threads, or forums, you have to use a LEFT JOIN with the Thread and Views table (even on the forum index) which can be extremely slow on high load websites.</li><br><li>A different queryset is used for each user, so there's no worthwhile caching for this method.</li><br><li>Upon viewing a thread you have to perform a query for each post that is marked as unread.</li><br></ul><br>Pros:<br><ul><br><li>It gives exact tracking on if a user has viewed a post.</li><br></ul><br>Obviously, the pros do NOT outweigh the cons, so let's move on to the other method:</p>
+
+<p><strong>Session Time Tracking</strong></p>
+
+<p>The idea of this is simple, and extremely quick. Our first step is to modify our User table if it's not already setup properly. We need to add one field:<br><blockquote>"users"<br>lastVisitTime (DateTimeField)</blockquote><br>Ok now we have a field in our users table, which tracks the last time they visited the website. Now, obviously, the first obstacle is keeping the last visit time, as the time they last visisted the site, and not the last time they viewed a page. The way we will do this is quite simple:<br><ol><br><li>First and foremost, we validate their login details, if they're not anonymous.</li><br><li>Next we check for a session variable, let's call it "user_lastvisit".</li><br><li>If this variable does not exist, we will set it to the data in our table for lastVisitTime, or -1 (if they're anonymous, or have no lastVisitTime)</li><br><li>If they are not anonymous, we now need to update our User table lastVisitTime with the current time.</li><br></ol><br>Now, as you can see, we have the session variable, user_lastvisit, and we can use this in our template, or view, in a loop over all of the <strong>cached</strong> query results, to see if the last reply time is greater than the last visit time.</p>
+
+<p>Cons:<br><ul><br><li>It's generic tracking; the minute the session is destroyed it marks all threads as read.</li><br><li>It does not track on a per-thread basis, although it could be combined with example #1 to do so.</li><br></ul><br>Pros:<br><ul><br><li>Extremely robust and quick, works well with caching solutions.</li><br><li>No large database overhead for tracking views.</li><br><li>No added database load for marking threads as read.</li><br></ul><br>If you want accurate tracking, I would recommend tracking views as said in example #1, with the views table, and then using example #2 for tracking on lists. The accurate tracking is most notably usable in search results.</p>

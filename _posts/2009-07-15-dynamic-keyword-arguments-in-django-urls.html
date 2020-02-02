@@ -1,0 +1,66 @@
+---
+wordpress_id: 470
+layout: post
+title: Dynamic Keyword Arguments in Django URLs
+wordpress_url: http://www.davidcramer.net/?p=470
+categories: ["django"]
+---
+<p>Today I'm going to talk a little bit about one of our hurdles, and a quick solution we came up with to get around it at <a href="http://www.ibegin.com/">iBegin</a>. We needed the ability to override URLs per-site, which by itself is fairly easy. You simply change the <code>ROOT_URLCONF</code> in your local or per-site settings file. Let's take an example:</p>
+
+<p>Let's say I want <code>/blog/details/&lt;post_slug&gt;</code> on Site A, but on Site B I want that to be <code>/blog/details/&lt;post_id&gt;</code>. This is fairly easy to handle in templates, by simply passing different kwargs to your url resolver, but we needed to be able to handle this in methods like <code>get_absolute_url()</code>. First let's explain why we needed this instead of the default resolver.</p>
+
+<p>In many cases, your URLs are not going to allow changing variables. This is common in overloading of methods as the arguments accepted can change. At iBegin we had a need for this in several situations, and thus we needed a way to pass varying kwargs to the same view. For example, if you had <code>/blog/details/&lt;post_id&gt;</code> and you just wanted to change it to <code>/blog/view-post/&lt;post_id&gt;/</code> your resolver is going to pick up the change without any work, and you wont need to change any calls for this URL.</p>
+
+<p>The way the resolver works, is it simply loops over any matching <code>lookup_view</code> and tries to find URL which matches the kwargs or args you passed to it. In our case, we needed to be able to pass it all available kwargs, and have it return a working URL. This allows us to easily change the URL to match any of the accepted arguments in our overloaded view, and not worry about modifying our <code>reverse()</code> lookups.</p>
+
+<p>So back to our original example, using our newly implemented <code>vary_permalink</code>, we can have a dynamic overloaded absolute url by doing the following:</p>
+
+{% highlight python %}
+@vary_permalink
+def get_absolute_url(self):
+    kwarg_map = {
+        'city_slug': self.city_slug,
+        'state_slug': self.state_slug,
+        'country_slug': self.country_slug,
+        'business_slug': self.slug,
+        'business_id': self.id,
+    }
+    return ('directory:business', kwarg_map)
+{% endhighlight %}
+
+In this situation, as long as we have a url named <code>directory:business</code> that accepts any number of those kwargs, in any order, it will be returned. The only limitation presented in this situation currently, is there's no way of determining which one to return. So for this example, we simply use a first-in-first-out routine. Future plans could possible include extending the <code>url()</code> method and url resolvers to implement a <code>priority</code> flag.
+
+Enough with the explanation, let's get down to the actual code:
+
+{% highlight python %}
+from django.core.urlresolvers import get_resolver, reverse
+    def vary_reverse(lookup_view, kwargs):
+    """
+    Returns the first matching URL for the ``lookup_view``
+    matching any number of ``kwargs`` in any order.
+
+    vary_reverse('lookup_view', {'param1': 'value', 'param2': 'value'})
+    """
+    resolver = get_resolver(None)
+    for result in resolver.reverse_dict.getlist(lookup_view):
+        pattern, req_kwargs = result[0][0]
+        try:
+            kwargs = dict([(k, kwargs[k]) for k in req_kwargs])
+        except KeyError:
+            continue
+        else:
+            return reverse(lookup_view, kwargs=kwargs)
+    raise ValueError('No url matching kwargs.')
+{% endhighlight %}
+
+The first part is our new <code>reverse()</code> method. We can pass in the same arguments as seen above in the <code>@vary_permalink</code> decorator, which is shown below:
+
+{% highlight python %}
+def vary_permalink(func):
+    def inner(*args, **kwargs):
+        bits = func(*args, **kwargs)
+        return vary_reverse(*bits)
+    return inner
+{% endhighlight %}
+
+<p>That's the quick and dirty rundown of how we've solved overloading of views with differing arguments and maintaining callable URL methods on models. Have you come up with a better solution, let me know!</p>

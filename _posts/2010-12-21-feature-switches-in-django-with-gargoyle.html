@@ -1,0 +1,18 @@
+---
+wordpress_id: 36341
+layout: post
+title: Feature Switches in Django with Gargoyle
+wordpress_url: http://www.davidcramer.net/?p=36341
+categories: ["django", "disqus"]
+---
+<p>A while back we talked about using <a href="http://blog.disqus.com/post/789540337/partial-deployment-with-feature-switches">feature switches</a> to deal with partial deployment. This allows you to easily deploy to portions of your audience, or bring out less finalized features without hiding them behind branches and the likes. This last week we hosted a company hack day here at DISQUS, and myself and <a href="http://anton.kovalyov.net/">Anton Kovalyov</a> decided we'd open source our switches platform. So the idea was that everyone here had a whole day to work on their projects. We figured that'd leave us plenty of time left over. In the end it turned out that creating an extensible platform was a bit more work than we had hoped.</p>
+
+<p>After hack day, and some sparse hours of finalizing things, we're proud to be announcing <a href="https://github.com/disqus/gargoyle">Gargoyle</a> today.</p>
+
+<p><img src="http://dl.dropbox.com/u/116385/Screenshots/-egenorlfjki.png" style="max-width:100%;" alt="gargoyle"/></p>
+
+<p>So out of the box, here's what you get:</p>
+
+<ul><li>Support for IP address (by percent and IP)</li><li>Support for User (by percent, username, is_staff, is_superuser, and is_anonymous)</li><li>Integration using <a href="http://github.com/dcramer/nexus">Nexus</a> (post incoming later this week)</li><li>Easily extensible form-like condition sets for adding your own</li></ul>
+
+<p>Check out the <a href="https://github.com/disqus/gargoyle">README</a> and let us know what you think!</p>

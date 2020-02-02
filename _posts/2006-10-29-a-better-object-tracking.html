@@ -1,0 +1,9 @@
+---
+wordpress_id: 29
+layout: post
+title: A better object tracking
+wordpress_url: http://www.davidcramer.net/other/29/a-better-object-tracking.html
+---
+<p>After having built the system on our new CMS, and a couple suggestions from a friend, I came up with a better tracking system as I originally <a href="http://www.davidcramer.net/other/27/tracking-unread-objects.html">detailed on my blog</a>. The new system is combination of the second method detailed in the post, and a much more accurate solution.</p>
+
+<p>We continue to track the last login time in our session (and database, if they're logged in), but we now also track a time for each object they have viewed. Whenever they view an object, you update a list in your session w/ that object's key, and the current time. Now you simply compare the time they viewed that object (if it exists) with the last updated time, and you have a quick, database-free, tracking solution.</p>

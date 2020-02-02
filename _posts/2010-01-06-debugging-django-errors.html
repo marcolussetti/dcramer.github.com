@@ -1,0 +1,50 @@
+---
+wordpress_id: 502
+layout: post
+title: Debugging Django Errors
+wordpress_url: http://www.davidcramer.net/?p=502
+categories: ["django"]---
+<p>Today (for many hours) I sat here attempting to debug an error which Django wasn't spitting out. This happened when combining Django+mod_wsgi and having a runtime import error. The result is a generic white internal server error page from Apache, and nothing recorded in any kind of error log.</p>
+
+<p>So, to make your life easier, I thought I'd help you out by showing what I discovered.</p>
+
+<p>First things first, you're going to want to install a piece of debugging wsgi middleware. This was new to me, but its basically just a decorating class for your wsgi application. What I used was Paste's ErrorMiddleware:</p>
+
+<pre>pip install -e svn+http://svn.pythonpaste.org/Paste/trunk</pre>
+
+<p>Now, pop open your handler file (handler.wsgi in our case). What we did, was make it so if DEBUG is set to True, then it wraps the application handler with the new middleware:</p>
+
+{% highlight python %}
+
+import os, sys, os.path
+
+# Add the project to the python path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+# Prevent mod_wsgi from erroring on stdout access
+sys.stdout = sys.stderr
+
+# Set our settings module
+os.environ['DJANGO_SETTINGS_MODULE']='iplatform.settings'
+
+import django.core.handlers.wsgi
+
+# Run WSGI handler for the application
+application = django.core.handlers.wsgi.WSGIHandler()
+
+from django.conf import settings
+
+# Debug middleware
+if settings.DEBUG:
+print >> sys.stderr, "Using Paste error middleware"
+from paste.exceptions.errormiddleware import ErrorMiddleware
+application = ErrorMiddleware(application, debug=True, show_exceptions_in_wsgi_errors=True)
+
+<p># Create session directory if not present
+if settings.SESSION_FILE_PATH:
+try:
+os.makedirs(settings.SESSION_FILE_PATH)
+except OSError:
+pass
+{% endhighlight %}
+
+<p>Hope this helps you as much as it helped me!</p>

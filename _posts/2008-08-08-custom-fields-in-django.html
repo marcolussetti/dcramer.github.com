@@ -1,0 +1,71 @@
+---
+wordpress_id: 181
+layout: post
+title: Custom Fields in Django
+wordpress_url: http://www.davidcramer.net/?p=181
+---
+<p>I was helping someone today in the <a href="irc://irc.freenode.net/django">Django IRC channel</a> and the question came across about storing a denormalized data set in a single field. Typically I do such things by either serializing the data, or by separating the values with a token (comma for example).</p>
+
+<p>Django has a built-in field type for <a href="http://www.djangoproject.com/documentation/model-api/#commaseparatedintegerfield">CommaSeparatedIntegerField</a>, but most of the time I'm storing strings, as I already have the integers available elsewhere. As I began to answer the person's question by giving him an example of usage of serialization + custom properties, until I realized that it would be much easier to just write this as a Field subclass.</p>
+
+<p>So I quickly did, and replaced a few lines of repetitive code with two new field classes in our source:</p>
+
+<p><strong>Update:</strong> There were some issues with my understanding of how the metaclass was working. I've corrected the code and it should function properly now.</p>
+
+<p><h3>SerializedDataField</h3></p>
+
+<p>This field is typically used to store raw data, such as a dictionary, or a list of items, or could even be used for more complex objects.</p>
+
+{% highlight python %}
+from django.db import models
+try:
+    import cPickle as pickle
+except:
+    import pickle
+import base64
+
+class SerializedDataField(models.TextField):
+    """Because Django for some reason feels its needed to repeatedly call
+    to_python even after it's been converted this does not support strings."""
+    __metaclass__ = models.SubfieldBase
+
+    def to_python(self, value):
+        if value is None: return
+        if not isinstance(value, basestring): return value
+        value = pickle.loads(base64.b64decode(value))
+        return value
+
+    def get_db_prep_save(self, value):
+        if value is None: return
+        return base64.b64encode(pickle.dumps(value))
+{% endhighlight %}
+
+<h3>SeparatedValuesField</h3>
+
+An alternative to the CommaSeparatedIntegerField, it allows you to store any separated values. You can also optionally specify a <code>token</code> parameter.
+
+{% highlight python %}
+from django.db import models
+
+class SeparatedValuesField(models.TextField):
+    __metaclass__ = models.SubfieldBase
+
+    def __init__(self, *args, **kwargs):
+        self.token = kwargs.pop('token', ',')
+        super(SeparatedValuesField, self).__init__(*args, **kwargs)
+
+    def to_python(self, value):
+        if not value: return
+        if isinstance(value, list):
+            return value
+        return value.split(self.token)
+
+    def get_db_prep_value(self, value):
+        if not value: return
+        assert(isinstance(value, list) or isinstance(value, tuple))
+        return self.token.join([unicode(s) for s in value])
+
+    def value_to_string(self, obj):
+        value = self._get_val_from_obj(obj)
+        return self.get_db_prep_value(value)
+{% endhighlight %}

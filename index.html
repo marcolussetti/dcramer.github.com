@@ -1,0 +1,57 @@
+---
+layout: nil
+---
+
+{% capture root_url %}{{ site.root | strip_slash }}{% endcapture %}
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>David Cramer</title>
+    <meta name="author" content="{{ site.author }}">
+
+    {% capture description %}{% if page.description %}{{ page.description }}{% else %}{{ content | raw_content }}{% endif %}{% endcapture %}
+    <meta name="description" content="{{ description | strip_html | condense_spaces | truncate:150 }}">
+    {% if page.keywords %}<meta name="keywords" content="{{ page.keywords }}">{% endif %}
+    <meta name="viewport" content="width=device-width; initial-scale=1; maximum-scale=1">
+
+    <link href="{{ site.subscribe_rss }}" rel="alternate" title="{{site.title}}" type="application/atom+xml">
+    <link rel="canonical" href="{{ canonical }}">
+    <link href="{{ root_url }}/favicon.png" rel="shortcut icon">
+    <link href="{{ root_url }}/stylesheets/screen.css?1" media="screen, projection" rel="stylesheet" type="text/css">
+    <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    {% include custom/head.html %}
+    {% include google_analytics.html %}
+</head>
+<body class="splash">
+    <div class="wrapper">
+        <div class="wrapper-inner">
+            <header class="inner">
+                <div class="container">
+                    <h1><a href="{{ root_url }}/">{{ site.title }}</a></h1>
+                    <div class="right">
+                        <div class="social right">
+                            {% if site.twitter_user %}
+                            <a class="twitter" href="http://twitter.com/{{ site.twitter_user }}" title="Twitter">
+                                <span class="icon-twitter"></span>
+                            </a>
+                            {% endif %}
+                            {% if site.github_user %}
+                            <a class="github" href="https://github.com/{{ site.github_user }}" title="GitHub">
+                                <span class="icon-github"></span>
+                            </a>
+                            {% endif %}
+                            <a href="https://sentry.io" title="Sentry">
+                                <span class="sentry-mark"></span>
+                            </a>
+                        </div>
+                    </div>
+                    {% include custom/header.html %}
+                </div>
+            </header>
+            {% include after_footer.html %}
+        </div>
+    </div>
+</body>
+</html>

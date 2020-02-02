@@ -1,0 +1,21 @@
+<h1><a href="{{ root_url }}/">{{ site.title }}</a></h1>
+<div class="right">
+	<div class="social right">
+		{% if site.twitter_user %}
+		<a class="twitter" href="http://twitter.com/{{ site.twitter_user }}" title="Twitter">
+			<span class="icon-twitter"></span>
+		</a>
+		{% endif %}
+		{% if site.github_user %}
+		<a class="github" href="https://github.com/{{ site.github_user }}" title="GitHub">
+			<span class="icon-github"></span>
+		</a>
+		{% endif %}
+		{% if site.subscribe_rss %}
+		<a class="rss" href="{{ site.subscribe_rss }}" title="RSS">
+			<span class="icon-feed"></span>
+		</a>
+		{% endif %}
+	</div>
+</div>
+{% include custom/header.html %}

@@ -1,0 +1,23 @@
+---
+wordpress_id: 63
+layout: post
+title: dir() in JavaScript
+wordpress_url: http://www.davidcramer.net/code/63/dir-in-javascript.html
+---
+<p>I was working with some JavaScript code today (for our new moderation tools on Curse), and found something interesting. Let me first say by in no way do I claim to be a JavaScript expert, so don't tease me too much.<br><!--more--><br><a href="http://www.pastethat.com/Enwlb">JavaScript dir() method</a>.</p>
+
+{% highlight javascript %}
+function dir(object)
+{
+    methods = [];
+    for (z in object) {
+        if (typeof(z) != 'number') {
+            methods.push(z);
+        }
+        return methods.join(', ');
+    }
+{% endhighlight %}
+
+<p>This works on certain elements and outputs a list like it would in Python, of all the methods that are attached to it. I added the typeof() clause to stop it from outputting slices.</p>
+
+<p>Maybe there's a better way to do this (without a debugger), but this was my best guess.</p>

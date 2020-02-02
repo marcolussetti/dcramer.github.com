@@ -1,0 +1,44 @@
+---
+wordpress_id: 73
+layout: post
+title: Caching Layer for Django ORM
+wordpress_url: http://www.davidcramer.net/code/73/caching-layer-for-django-orm.html
+---
+<p>I've finally completed what I'll call "phase 1" of the caching layer. It handles the easiest, and for my cases, the most useful level of cache invalidation: removing objects.</p>
+
+<p><strong>"Phase 1" Features:</strong><br><ul><li>Automatic caching of querysets.</li><li>Invalidating querysets when an object is removed.</li><li>Caching querysets objects in a key by key basis (per-object caching).</li><li>Automatic invalidation of per-object caches.</li></ul></p>
+
+<p><a href="http://code.google.com/p/django-orm-cache/">Grab the code from Google</a> and look it over if you're interested. This is still very much in a "It probably doesn't work correctly" phase, and the code will have a lot of cleanup and structure changes before it's done.</p>
+
+<p>Here's a quick rundown of the intended functionality and SQL usage:</p>
+
+<pre>
+class MyModel(CachedModel): [...]
+
+MyModel.objects.create(name="Test") [1 query]
+
+MyModel.objects.all() [1 query ]
+[Test,]
+
+MyModel.objects.create(name="Test2") [1 query]
+
+MyModel.objects.all() [no queries]
+[Test,]
+
+MyModel.objects.create(name="Test3") [1 query]
+
+MyModel.objects.all().reset() [1 query]
+>>> [Test, Test2, Test3]
+
+MyModel.objects.get(name="Test2").delete() [1 query]
+
+MyModel.objects.all() [2 queries]
+[Test, Test3]
+
+z = MyModel.objects.get(name="Test")
+z.name = "Test Changed"
+z.save() [1 query]
+
+MyModel.objects.all() [no queries]
+[Test Changed, Test3]
+</pre>

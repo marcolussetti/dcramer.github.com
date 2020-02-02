@@ -1,0 +1,104 @@
+---
+wordpress_id: 479
+layout: post
+title: Using Jinja2 with Django (via Coffin)
+wordpress_url: http://www.davidcramer.net/?p=479
+categories: ["django"]
+---
+<p>As an advocate of Jinja2 I figured it was about time I got on board the train. Up until now I had been using Jinja1 at work, and in most projects. The main reasoning behind this was there was no good connector. Now many might say that you don't need a connector, you can just throw in a couple of functions and it works. While that might be true, there's a lot more that goes into rendering templates than simply parsing standard HTML.</p>
+
+<p>So as I began the conversion, I found a project called <a href="http://github.com/dcramer/coffin">Coffin</a>. The project was hosted over at LaunchPad, which personally, I wish would disappear from the internet. Among the problem of getting bzr working on my Mac, and servers, so that I could check out the project, I also found that the project wasn't very stable.</p>
+
+<p>Quickly I noticed it didn't have support for globals, or tests. We don't really use tests, but we have many global functions. Things such as the URL template tag in Django, we had written as a Jinja Global (<code>&#123;&#123; url() &#125;&#125;</code> vs <code>&#123;% url %&#125;</code>). So I quickly began moving a copy of the repository over to GitHub, so I could get these additions in. While doing this I had also found some other areas which were needing improvements (mostly caching optimizations).</p>
+
+<p>By the end of the day, I had gotten a discussion going w/ the original author (Chris Leary) of Coffin to find out that it was kind of a dead project. After a few back and forth I decided to take over the project. So we've now got it up at GitHub, and it includes several optimizations, support for globals and tests, and a critical threading fix. What we have now is a fairly stable (as of tonight) binding between Jinja2 and Django.</p>
+
+<p>Now let's talk a bit about how you can use this with your Django project. It's pretty compicated so try to keep up!</p>
+
+<p>First up, installation:</p>
+
+<pre><br># As of the time of writing the current version is 0.3<br>easy_install Coffin==0.3<br></pre>
+
+<p>Load up your <code>settings.py</code> and add it to your installed apps (this step is not required):</p>
+
+{% highlight python %}
+INSTALLED_APPS = (
+    'coffin',
+    ...
+)
+{% endhighlight %}
+
+<p>Go into your <code>urls.py</code> and switch out your import line:</p>
+
+{% highlight python %}
+from coffin.conf.urls.defaults import *
+{% endhighlight %}
+
+Now the next part we do in our own project, simply because we dont use Context instances:
+
+{% highlight python %}
+from coffin import shortcuts
+from django.template import RequestContext
+
+def render_to_string(template, context, request=None):
+    if request:
+        context_instance = RequestContext(request)
+    else:
+        context_instance = None
+    return shortcuts.render_to_string(template, context, context_instance)
+
+def render_to_response(template, context={}, request=None, mimetype="text/html"):
+    response = render_to_string(template, context, request)
+    return HttpResponse(response, mimetype=mimetype)
+{% endhighlight %}
+
+Now you're ready to start rendering those amazingly fast Jinja2 templates!
+
+{% highlight python %}
+from myshortcuts import render_to_response
+
+def myview(request):
+    return render_to_response('template/path.html', {'title': 'Hello World'}, request)
+{% endhighlight %}
+
+Pretty painful, we know :)
+
+So let's move on to a bit more of the advanced Jinja2 bits, registering your own extensions. In Coffin this is fairly easy:
+
+{% highlight python %}
+from coffin import template
+from jinja2 import Markup
+register = template.Library()
+
+@register.filter(jinja2_only=True)
+def mark_safe(value):
+    """ Marks the value as HTML-safe, and disables auto-escaping it. """
+    return Markup(value)
+
+@register.object()
+def hello():
+    """ Outputs 'world' """
+    return "world"
+
+@register.test(is_a_string, 'string')
+def is_a_string(value):
+    return isinstance(value, basestring)
+
+class UselessExtension(Extension):
+    """ Outputs the given value ."""
+    tags = ['useless']
+
+    def parse(self, parser):
+        lineno = parser.stream.next().lineno
+        body = parser.parse_statements(['name:endspaceless'], drop_needle=True)
+        return nodes.CallBlock(
+            self.call_method('_do_nothing', [], [], None, None),
+            [], [], body
+        ).set_lineno(lineno)
+
+    def _do_nothing(self, caller=None):
+        return caller()
+register.tag(UselessExtension)
+{% endhighlight %}
+
+<p>Please check out the <a href="http://github.com/dcramer/coffin/blob/master/README.rst">README</a> for more information. Enjoy!</p>

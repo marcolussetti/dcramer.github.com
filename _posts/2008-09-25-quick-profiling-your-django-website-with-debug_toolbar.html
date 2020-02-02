@@ -1,0 +1,21 @@
+---
+wordpress_id: 312
+layout: post
+title: Quick profiling your Django website with `debug_toolbar`
+wordpress_url: http://www.davidcramer.net/?p=312
+---
+<p><a href="http://www.pastethat.com/GiPZ1" style="float:right;background:none;padding:5px;"><img src="http://www.pastethat.com/GiPZ1.jpg"/></a>One of the projects that I've been spending a lot of time with is the <a href="http://github.com/dcramer/django-debug-toolbar/tree">django-debug-toolbar</a>. It was started off by Rob Hudson, and since has had huge amounts of support. While my fork is quite a ways off of Rob's, they're both quite useful in their own right. To clear up one very annoying detail: This project is in no way intended to replace profiling tools or complex debugging tools like <em>pdb</em>. It's designed to give you quick access to general information to help debug or rough profile your web application.</p>
+
+<p><a href="http://www.pastethat.com/MgVcm" style="float:left;background:none;padding:5px;"><img src="http://www.pastethat.com/MgVcm.jpg"/></a>I've been focusing on some of the hardcore features in panels, such as my SQL panel. MySQL users will find this especially useful, as not only do you get EXPLAIN support (provided for all backends which support it via <code>EXPLAIN [statement]</code>) but you also can get a printout of all of the available indexes and their columns. It makes figuring out what's going on with your database a lot quicker.</p>
+
+<p>I have also added full tracebacks for both database queries, and cache calls. Again, see the example, but it is another very helpful feature which can assist you in finding where stuff is happening within your codebase.</p>
+
+<p><a href="http://www.pastethat.com/ZsReC" style="float:right;background:none;padding:5px;"><img src="http://www.pastethat.com/ZsReC.jpg"/></a>Among the many changes that have been getting thrown into my [somewhat unstable] fork, is a great design revamp by a character who goes by <em>mape</em>. It gives it a much more django-esque feel, and even has a lot of fancy "web 2.0" (javascript) actions hooked in, such as inline filtering and sorting of tables.</p>
+
+<p>To try out the project, it's just a few simple actions to get it up and running:</p>
+
+<ol><br><li><code>git clone git://github.com/dcramer/django-debug-toolbar.git</code></li><br><li>Add <code>django-debug-toolbar/</code> to your <code>PYTHONPATH</code>.</li><br><li>Add <code>debug_toolbar</code> to your <code>INSTALLED_APPS</code>.</code><br><li>Add <code>'debug_toolbar.middleware.DebugToolbarMiddleware'</code> to your middleware. It should go after your Session, Auth, and GZip middleware, but can be placed before most others.</li><br><li>Login via your superuser, or use the <code>INTERNAL_IPS</code> setting to allow your user to access it. Currently <code>DEBUG</code> must also be set to true.</li><br></ol>
+
+<p>I very much urge anyone who's interested in the project to give feedback, as well as contribute if they so desire. There's still a lot this project can achieve, and it most certainly can be a benefit in most web applications.</p>
+
+<p>Just a note, if you're using my branch, the template panel (as of writing) is non functional as I like to source everything, and it's being revamped for Django+Jinja.</p>
