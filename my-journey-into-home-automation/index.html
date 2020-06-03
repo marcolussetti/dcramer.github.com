@@ -1,0 +1,351 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="ie=edge"/><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/><style id="typography.js">html{font-family:sans-serif;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%}body{margin:0}article,aside,details,figcaption,figure,footer,header,main,menu,nav,section,summary{display:block}audio,canvas,progress,video{display:inline-block}audio:not([controls]){display:none;height:0}progress{vertical-align:baseline}[hidden],template{display:none}a{background-color:transparent;-webkit-text-decoration-skip:objects}a:active,a:hover{outline-width:0}abbr[title]{border-bottom:none;text-decoration:underline;text-decoration:underline dotted}b,strong{font-weight:inherit;font-weight:bolder}dfn{font-style:italic}h1{font-size:2em;margin:.67em 0}mark{background-color:#ff0;color:#000}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}img{border-style:none}svg:not(:root){overflow:hidden}code,kbd,pre,samp{font-family:monospace,monospace;font-size:1em}figure{margin:1em 40px}hr{box-sizing:content-box;height:0;overflow:visible}button,input,optgroup,select,textarea{font:inherit;margin:0}optgroup{font-weight:700}button,input{overflow:visible}button,select{text-transform:none}[type=reset],[type=submit],button,html [type=button]{-webkit-appearance:button}[type=button]::-moz-focus-inner,[type=reset]::-moz-focus-inner,[type=submit]::-moz-focus-inner,button::-moz-focus-inner{border-style:none;padding:0}[type=button]:-moz-focusring,[type=reset]:-moz-focusring,[type=submit]:-moz-focusring,button:-moz-focusring{outline:1px dotted ButtonText}fieldset{border:1px solid silver;margin:0 2px;padding:.35em .625em .75em}legend{box-sizing:border-box;color:inherit;display:table;max-width:100%;padding:0;white-space:normal}textarea{overflow:auto}[type=checkbox],[type=radio]{box-sizing:border-box;padding:0}[type=number]::-webkit-inner-spin-button,[type=number]::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}[type=search]::-webkit-search-cancel-button,[type=search]::-webkit-search-decoration{-webkit-appearance:none}::-webkit-input-placeholder{color:inherit;opacity:.54}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}html{font:112.5%/1.8 'Open Sans',sans-serif;box-sizing:border-box;overflow-y:scroll;}*{box-sizing:inherit;}*:before{box-sizing:inherit;}*:after{box-sizing:inherit;}body{color:hsla(0,0%,0%,0.8);font-family:'Open Sans',sans-serif;font-weight:normal;word-wrap:break-word;font-kerning:normal;-moz-font-feature-settings:"kern", "liga", "clig", "calt";-ms-font-feature-settings:"kern", "liga", "clig", "calt";-webkit-font-feature-settings:"kern", "liga", "clig", "calt";font-feature-settings:"kern", "liga", "clig", "calt";}img{max-width:100%;margin-left:0;margin-right:0;margin-top:0;padding-bottom:0;padding-left:0;padding-right:0;padding-top:0;margin-bottom:1.8rem;}h1{margin-left:0;margin-right:0;margin-top:0;padding-bottom:0;padding-left:0;padding-right:0;padding-top:0;margin-bottom:1.8rem;color:inherit;font-family:'Open Sans',sans-serif;font-weight:bold;text-rendering:optimizeLegibility;font-size:2rem;line-height:1.1;}h2{margin-left:0;margin-right:0;margin-top:0;padding-bottom:0;padding-left:0;padding-right:0;padding-top:0;margin-bottom:1.8rem;color:inherit;font-family:'Open Sans',sans-serif;font-weight:bold;text-rendering:optimizeLegibility;font-size:1.51572rem;line-height:1.1;}h3{margin-left:0;margin-right:0;margin-top:0;padding-bottom:0;padding-left:0;padding-right:0;padding-top:0;margin-bottom:1.8rem;color:inherit;font-family:'Open Sans',sans-serif;font-weight:bold;text-rendering:optimizeLegibility;font-size:1.31951rem;line-height:1.1;}h4{margin-left:0;margin-right:0;margin-top:0;padding-bottom:0;padding-left:0;padding-right:0;padding-top:0;margin-bottom:1.8rem;color:inherit;font-family:'Open Sans',sans-serif;font-weight:bold;text-rendering:optimizeLegibility;font-size:1rem;line-height:1.1;}h5{margin-left:0;margin-right:0;margin-top:0;padding-bottom:0;padding-left:0;padding-right:0;padding-top:0;margin-bottom:1.8rem;color:inherit;font-family:'Open Sans',sans-serif;font-weight:bold;text-rendering:optimizeLegibility;font-size:0.87055rem;line-height:1.1;}h6{margin-left:0;margin-right:0;margin-top:0;padding-bottom:0;padding-left:0;padding-right:0;padding-top:0;margin-bottom:1.8rem;color:inherit;font-family:'Open Sans',sans-serif;font-weight:bold;text-rendering:optimizeLegibility;font-size:0.81225rem;line-height:1.1;}hgroup{margin-left:0;margin-right:0;margin-top:0;padding-bottom:0;padding-left:0;padding-right:0;padding-top:0;margin-bottom:1.8rem;}ul{margin-left:1.8rem;margin-right:0;margin-top:0;padding-bottom:0;padding-left:0;padding-right:0;padding-top:0;margin-bottom:1.8rem;list-style-position:outside;list-style-image:none;}ol{margin-left:1.8rem;margin-right:0;margin-top:0;padding-bottom:0;padding-left:0;padding-right:0;padding-top:0;margin-bottom:1.8rem;list-style-position:outside;list-style-image:none;}dl{margin-left:0;margin-right:0;margin-top:0;padding-bottom:0;padding-left:0;padding-right:0;padding-top:0;margin-bottom:1.8rem;}dd{margin-left:0;margin-right:0;margin-top:0;padding-bottom:0;padding-left:0;padding-right:0;padding-top:0;margin-bottom:1.8rem;}p{margin-left:0;margin-right:0;margin-top:0;padding-bottom:0;padding-left:0;padding-right:0;padding-top:0;margin-bottom:1.8rem;}figure{margin-left:0;margin-right:0;margin-top:0;padding-bottom:0;padding-left:0;padding-right:0;padding-top:0;margin-bottom:1.8rem;}pre{margin-left:0;margin-right:0;margin-top:0;padding-bottom:0;padding-left:0;padding-right:0;padding-top:0;margin-bottom:1.8rem;font-size:0.85rem;line-height:1.8rem;}table{margin-left:0;margin-right:0;margin-top:0;padding-bottom:0;padding-left:0;padding-right:0;padding-top:0;margin-bottom:1.8rem;font-size:1rem;line-height:1.8rem;border-collapse:collapse;width:100%;}fieldset{margin-left:0;margin-right:0;margin-top:0;padding-bottom:0;padding-left:0;padding-right:0;padding-top:0;margin-bottom:1.8rem;}blockquote{margin-left:1.8rem;margin-right:1.8rem;margin-top:0;padding-bottom:0;padding-left:0;padding-right:0;padding-top:0;margin-bottom:1.8rem;}form{margin-left:0;margin-right:0;margin-top:0;padding-bottom:0;padding-left:0;padding-right:0;padding-top:0;margin-bottom:1.8rem;}noscript{margin-left:0;margin-right:0;margin-top:0;padding-bottom:0;padding-left:0;padding-right:0;padding-top:0;margin-bottom:1.8rem;}iframe{margin-left:0;margin-right:0;margin-top:0;padding-bottom:0;padding-left:0;padding-right:0;padding-top:0;margin-bottom:1.8rem;}hr{margin-left:0;margin-right:0;margin-top:0;padding-bottom:0;padding-left:0;padding-right:0;padding-top:0;margin-bottom:calc(1.8rem - 1px);background:hsla(0,0%,0%,0.2);border:none;height:1px;}address{margin-left:0;margin-right:0;margin-top:0;padding-bottom:0;padding-left:0;padding-right:0;padding-top:0;margin-bottom:1.8rem;}b{font-weight:bold;}strong{font-weight:bold;}dt{font-weight:bold;}th{font-weight:bold;}li{margin-bottom:calc(1.8rem / 2);}ol li{padding-left:0;}ul li{padding-left:0;}li > ol{margin-left:1.8rem;margin-bottom:calc(1.8rem / 2);margin-top:calc(1.8rem / 2);}li > ul{margin-left:1.8rem;margin-bottom:calc(1.8rem / 2);margin-top:calc(1.8rem / 2);}blockquote *:last-child{margin-bottom:0;}li *:last-child{margin-bottom:0;}p *:last-child{margin-bottom:0;}li > p{margin-bottom:calc(1.8rem / 2);}code{font-size:0.85rem;line-height:1.8rem;}kbd{font-size:0.85rem;line-height:1.8rem;}samp{font-size:0.85rem;line-height:1.8rem;}abbr{border-bottom:1px dotted hsla(0,0%,0%,0.5);cursor:help;}acronym{border-bottom:1px dotted hsla(0,0%,0%,0.5);cursor:help;}abbr[title]{border-bottom:1px dotted hsla(0,0%,0%,0.5);cursor:help;text-decoration:none;}thead{text-align:left;}td,th{text-align:left;border-bottom:1px solid hsla(0,0%,0%,0.12);font-feature-settings:"tnum";-moz-font-feature-settings:"tnum";-ms-font-feature-settings:"tnum";-webkit-font-feature-settings:"tnum";padding-left:1.2rem;padding-right:1.2rem;padding-top:0.9rem;padding-bottom:calc(0.9rem - 1px);}th:first-child,td:first-child{padding-left:0;}th:last-child,td:last-child{padding-right:0;}a.gatsby-resp-image-link{box-shadow:none;}figcaption{text-align:center;color:#999;font-size:14px;}</style><style data-href="/styles.0c350ef8b3c6defeccbd.css">@font-face{font-family:Open Sans;font-style:normal;font-display:swap;font-weight:300;src:local("Open Sans Light "),local("Open Sans-Light"),url(/static/open-sans-latin-300-24f7b0944e9e03a905f9d7701573b2cd.woff2) format("woff2"),url(/static/open-sans-latin-300-a7622f60c56ddd5301549a786b54e6e6.woff) format("woff")}@font-face{font-family:Open Sans;font-style:italic;font-display:swap;font-weight:300;src:local("Open Sans Light italic"),local("Open Sans-Lightitalic"),url(/static/open-sans-latin-300italic-6725c3fb1f3abd7ebdcb2d244758f706.woff2) format("woff2"),url(/static/open-sans-latin-300italic-793b1237017aeacd646fb80911425566.woff) format("woff")}@font-face{font-family:Open Sans;font-style:normal;font-display:swap;font-weight:400;src:local("Open Sans Regular "),local("Open Sans-Regular"),url(/static/open-sans-latin-400-33543c5cc5d88f5695dd08c87d280dfd.woff2) format("woff2"),url(/static/open-sans-latin-400-de0869e324680c99efa1250515b4b41c.woff) format("woff")}@font-face{font-family:Open Sans;font-style:italic;font-display:swap;font-weight:400;src:local("Open Sans Regular italic"),local("Open Sans-Regularitalic"),url(/static/open-sans-latin-400italic-b61a9055d92ac56c15cacf4271d4f072.woff2) format("woff2"),url(/static/open-sans-latin-400italic-06b4bfda4e139eaf3ab9872a6d66f42f.woff) format("woff")}@font-face{font-family:Open Sans;font-style:normal;font-display:swap;font-weight:600;src:local("Open Sans SemiBold "),local("Open Sans-SemiBold"),url(/static/open-sans-latin-600-819af3d3abdc9f135d49b80a91e2ff4c.woff2) format("woff2"),url(/static/open-sans-latin-600-449d681cd6006390e1bee3c3a660430b.woff) format("woff")}@font-face{font-family:Open Sans;font-style:italic;font-display:swap;font-weight:600;src:local("Open Sans SemiBold italic"),local("Open Sans-SemiBolditalic"),url(/static/open-sans-latin-600italic-ebdfa24cb411ba3016abd1c3ea5746e5.woff2) format("woff2"),url(/static/open-sans-latin-600italic-56e5756b696615d6164a625e1bcb1a9e.woff) format("woff")}@font-face{font-family:Open Sans;font-style:normal;font-display:swap;font-weight:700;src:local("Open Sans Bold "),local("Open Sans-Bold"),url(/static/open-sans-latin-700-0edb76284a7a0f8db4665b560ee2b48f.woff2) format("woff2"),url(/static/open-sans-latin-700-1f85e92d8ff443980bc0f83ad7b23b60.woff) format("woff")}@font-face{font-family:Open Sans;font-style:italic;font-display:swap;font-weight:700;src:local("Open Sans Bold italic"),local("Open Sans-Bolditalic"),url(/static/open-sans-latin-700italic-a49393f2171a2f4d6927ce6c14f73dbc.woff2) format("woff2"),url(/static/open-sans-latin-700italic-bf72679ca22e53320beaea090e8bb07d.woff) format("woff")}@font-face{font-family:Open Sans;font-style:normal;font-display:swap;font-weight:800;src:local("Open Sans ExtraBold "),local("Open Sans-ExtraBold"),url(/static/open-sans-latin-800-ab3e500e7375695d702cff19513e4470.woff2) format("woff2"),url(/static/open-sans-latin-800-05ebdbe10796850f045fcd484f35788d.woff) format("woff")}@font-face{font-family:Open Sans;font-style:italic;font-display:swap;font-weight:800;src:local("Open Sans ExtraBold italic"),local("Open Sans-ExtraBolditalic"),url(/static/open-sans-latin-800italic-c62c3eea77cf3fca51494e8c924adf4d.woff2) format("woff2"),url(/static/open-sans-latin-800italic-92da6f116d973bd334cf9b3afdb29c4f.woff) format("woff")}code[class*=language-],pre[class*=language-]{color:#000;background:none;text-shadow:0 1px #fff;font-family:Consolas,Monaco,Andale Mono,Ubuntu Mono,monospace;font-size:1em;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-hyphens:none;-ms-hyphens:none;hyphens:none}code[class*=language-]::selection,code[class*=language-] ::selection,pre[class*=language-]::selection,pre[class*=language-] ::selection{text-shadow:none;background:#b3d4fc}@media print{code[class*=language-],pre[class*=language-]{text-shadow:none}}pre[class*=language-]{padding:1em;margin:.5em 0;overflow:auto}:not(pre)>code[class*=language-],pre[class*=language-]{background:#f5f2f0}:not(pre)>code[class*=language-]{padding:.1em;border-radius:.3em;white-space:normal}.token.cdata,.token.comment,.token.doctype,.token.prolog{color:#708090}.token.punctuation{color:#999}.token.namespace{opacity:.7}.token.boolean,.token.constant,.token.deleted,.token.number,.token.property,.token.symbol,.token.tag{color:#905}.token.attr-name,.token.builtin,.token.char,.token.inserted,.token.selector,.token.string{color:#690}.language-css .token.string,.style .token.string,.token.entity,.token.operator,.token.url{color:#9a6e3a;background:hsla(0,0%,100%,.5)}.token.atrule,.token.attr-value,.token.keyword{color:#07a}.token.class-name,.token.function{color:#dd4a68}.token.important,.token.regex,.token.variable{color:#e90}.token.bold,.token.important{font-weight:700}.token.italic{font-style:italic}.token.entity{cursor:help}</style><meta name="generator" content="Gatsby 2.22.15"/><style type="text/css">
+        .gatsbyRemarkImagesGrid {
+          ;
+        }
+
+        .gatsbyRemarkImagesGrid-grid {
+          display: grid;
+          min-height: 0;
+          min-width: 0;
+          grid-gap: 8px;
+        }
+
+        .gatsbyRemarkImagesGrid-figcaption {
+          text-align: center;
+        }
+      </style><link rel="alternate" type="application/rss+xml" href="/rss.xml"/><link rel="icon" href="/favicon-32x32.png?v=edf3d310d67f8284a562bc3a58c3e761"/><link rel="manifest" href="/manifest.webmanifest"/><meta name="theme-color" content="#663399"/><link rel="apple-touch-icon" sizes="48x48" href="/icons/icon-48x48.png?v=edf3d310d67f8284a562bc3a58c3e761"/><link rel="apple-touch-icon" sizes="72x72" href="/icons/icon-72x72.png?v=edf3d310d67f8284a562bc3a58c3e761"/><link rel="apple-touch-icon" sizes="96x96" href="/icons/icon-96x96.png?v=edf3d310d67f8284a562bc3a58c3e761"/><link rel="apple-touch-icon" sizes="144x144" href="/icons/icon-144x144.png?v=edf3d310d67f8284a562bc3a58c3e761"/><link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192x192.png?v=edf3d310d67f8284a562bc3a58c3e761"/><link rel="apple-touch-icon" sizes="256x256" href="/icons/icon-256x256.png?v=edf3d310d67f8284a562bc3a58c3e761"/><link rel="apple-touch-icon" sizes="384x384" href="/icons/icon-384x384.png?v=edf3d310d67f8284a562bc3a58c3e761"/><link rel="apple-touch-icon" sizes="512x512" href="/icons/icon-512x512.png?v=edf3d310d67f8284a562bc3a58c3e761"/><title data-react-helmet="true">My Journey Into Home Automation | David Cramer&#x27;s Blog</title><meta data-react-helmet="true" name="description" content="A while back I moved into a new home, and with it I decided I wanted to explore the current state of the so-called “smart home” devices. Prior to this I had a…"/><meta data-react-helmet="true" property="og:title" content="My Journey Into Home Automation"/><meta data-react-helmet="true" property="og:description" content="A while back I moved into a new home, and with it I decided I wanted to explore the current state of the so-called “smart home” devices. Prior to this I had a…"/><meta data-react-helmet="true" property="og:type" content="website"/><meta data-react-helmet="true" name="twitter:card" content="summary"/><meta data-react-helmet="true" name="twitter:creator" content="zeeg"/><meta data-react-helmet="true" name="twitter:title" content="My Journey Into Home Automation"/><meta data-react-helmet="true" name="twitter:description" content="A while back I moved into a new home, and with it I decided I wanted to explore the current state of the so-called “smart home” devices. Prior to this I had a…"/><link as="script" rel="preload" href="/webpack-runtime-c65a5d0dab8d0c30f1c9.js"/><link as="script" rel="preload" href="/framework-dd95e8b3d258d85252e9.js"/><link as="script" rel="preload" href="/styles-14b7960238218173d3fe.js"/><link as="script" rel="preload" href="/app-3b790dbe793fffb04961.js"/><link as="script" rel="preload" href="/commons-cf69f4a5736c49837800.js"/><link as="script" rel="preload" href="/component---src-templates-blog-post-js-ba79fd630c21b95015f4.js"/><link as="fetch" rel="preload" href="/page-data/my-journey-into-home-automation/page-data.json" crossorigin="anonymous"/><link as="fetch" rel="preload" href="/page-data/app-data.json" crossorigin="anonymous"/></head><body><div id="___gatsby"><div style="outline:none" tabindex="-1" id="gatsby-focus-wrapper"><div><header style="background:#6f5dbb;color:#ffffff"><div style="max-width:50.4rem;margin-left:auto;margin-right:auto;padding:0.225rem 1.35rem"><div style="display:flex"><div style="flex:1;justify-content:center"><h1 style="font-size:4rem;line-height:4.5rem;margin:0;font-weight:900;letter-spacing:-8px"><a style="box-shadow:none;color:inherit;text-decoration:none" href="/">DC</a></h1></div><div style="display:flex;align-items:center"><a href="https://twitter.com/zeeg" style="margin-right:1.8rem"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path></svg></a><a href="https://github.com/dcramer"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg></a></div></div></div></header><main style="margin-top:1.8rem"><div style="max-width:50.4rem;margin-left:auto;margin-right:auto;padding:0.225rem 1.35rem"><article><header><h1 style="margin:0;border:0;font-weight:500">My Journey Into Home Automation</h1><p style="font-size:0.87055rem;line-height:1.8rem;display:block;color:#999;margin-bottom:1.8rem">February 01, 2020</p></header><section><p>A while back I moved into a new home, and with it I decided I wanted to explore the current state of the so-called “smart home” devices. Prior to this I had a couple of Philips Hue bulbs connected to Google Home, but that was the extent of it. Those bulbs only existed at the end of the day to make it easy to turn off lights with your voice. Well, barring the part where you have to shout “Hey Google” three times before the devices recognize whats going on. You’d think they’d come up with a better phrase which was easier to annunciate. I should mention I also had a fairly entry level Ubiquiti network — a high-end prosumer brand — that I had been using for a couple of years, and was extremely happy with.</p>
+<p>This is part one of my journey into over engineering my house’s infrastructure, making terrible choices, and continuously iteration on those decisions. I’m intending to continue writing about this, and will likely cover a different topic in each post.</p>
+<h1>Rackin’ Up</h1>
+<p>The first thing I did upon moving in, whether it makes any sense or not, was upgrade my networking gear to the latest generation. I knew Ubiquiti had a v2 of their core controller which also would allow me to use their security cameras, and given the high quality experience I had previously it was the easiest decision I made. I also knew I wanted to move things into a rack mounted solution rather than stuffing them in a random end table. It’s worth noting that the core driver here wasn’t so much my OCD or curiosity, but more than I needed a centralized location for the hardwired ethernet in the house.</p>
+<p>So, I quickly evaluated what I might need for a rack. I found a great Tripp Lite 12U wall-mounted rack on Amazon, and got to Prime’in. It had plenty of space to fit all of the networking gear, and would also let me replace my Intel NUC (which had recently croaked) with a small rack mounted PC.</p>
+<p><figure class="gatsby-resp-image-figure" style="">
+    <span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 590px; "
+    >
+      <a
+    class="gatsby-resp-image-link"
+    href="/static/6a47b46241727106e14c987597478f10/a2510/rack-wall-1.jpg"
+    style="display: block"
+    target="_blank"
+    rel="noopener"
+  >
+    <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 104.72972972972974%; position: relative; bottom: 0; left: 0; background-image: url('data:image/jpeg;base64,/9j/2wBDABALDA4MChAODQ4SERATGCgaGBYWGDEjJR0oOjM9PDkzODdASFxOQERXRTc4UG1RV19iZ2hnPk1xeXBkeFxlZ2P/2wBDARESEhgVGC8aGi9jQjhCY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2P/wgARCAAVABQDASIAAhEBAxEB/8QAGQABAAMBAQAAAAAAAAAAAAAAAAEDBAIF/8QAFQEBAQAAAAAAAAAAAAAAAAAAAQD/2gAMAwEAAhADEAAAAcdvO0oSHyrBNwH/xAAbEAACAwADAAAAAAAAAAAAAAABAwIRIgAEI//aAAgBAQABBQKmGYDOLugyUXSZS06DB6nY6+Yf/8QAFBEBAAAAAAAAAAAAAAAAAAAAIP/aAAgBAwEBPwEf/8QAFBEBAAAAAAAAAAAAAAAAAAAAIP/aAAgBAgEBPwEf/8QAGxAAAgIDAQAAAAAAAAAAAAAAAAECMRESYSH/2gAIAQEABj8ClrtZbHnNkkq2H7Fsb6SfSkjHT//EABwQAQACAwADAAAAAAAAAAAAAAEAESExUUFhwf/aAAgBAQABPyFsBAjCy1Tb7mKaTqUNWS3L5iLjv9vwTbDbxFQNLhMsZ2n/2gAMAwEAAgADAAAAEIwoQv/EABQRAQAAAAAAAAAAAAAAAAAAACD/2gAIAQMBAT8QH//EABYRAQEBAAAAAAAAAAAAAAAAAAEAEP/aAAgBAgEBPxBZxv/EAB0QAQEAAwACAwAAAAAAAAAAAAERACExcYGRodH/2gAIAQEAAT8QIadETfMIS1qJI+8bV0OtEP3FzMlbNzHJBhJt+ceMa2cuCtZWjR3zjzSSvftxsoF7eDP/2Q=='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="Wall-mounted Rack"
+        title="Wall-mounted Rack"
+        src="/static/6a47b46241727106e14c987597478f10/1c72d/rack-wall-1.jpg"
+        srcset="/static/6a47b46241727106e14c987597478f10/a80bd/rack-wall-1.jpg 148w,
+/static/6a47b46241727106e14c987597478f10/1c91a/rack-wall-1.jpg 295w,
+/static/6a47b46241727106e14c987597478f10/1c72d/rack-wall-1.jpg 590w,
+/static/6a47b46241727106e14c987597478f10/a8a14/rack-wall-1.jpg 885w,
+/static/6a47b46241727106e14c987597478f10/a2510/rack-wall-1.jpg 1000w"
+        sizes="(max-width: 590px) 100vw, 590px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+      />
+  </a>
+    </span>
+    <figcaption class="gatsby-resp-image-figcaption">Wall-mounted Rack</figcaption>
+  </figure></p>
+<p>Now when I went into this, I didn’t do nearly enough research on rack depths, so while the wall mounted unit was great, it was about two inches too short for me to mount the eventual server I built. That was my first mistake.</p>
+<p>A few more things unfolded and I realized ultimately I wasn’t going to have enough depth, let alone vertical space or weight-capacity in this unit. I was hoping to not only mount the networking gear, but also this new 2U server, my 8-bay Synology NAS, and now I realized I needed several Sonos AMPs and the ideal location for them was also within the rack.</p>
+<p>Some unfortunate (depending on how you see it) events occurred at this time as well. As I was trying to get everything back online after my move, I realized that not only had my Intel NUC fallen over, but my Synology NAS had a drive failure, and was running out of space. It also didn’t have enough free drive bays to cheaply expand the array, as I was using Raid 10 which doesn’t support using the existing array, but rather required enough total space in an entirely new array to fit all existing data.</p>
+<p>At this point I accepted that I had made a poorly informed choice on the rack, and also that I was going to need a new NAS solution.</p>
+<h1>Replacing the NAS</h1>
+<p>The first thing I did - given I had already made a mistake with the 2U server build - was explore what rack mounted NAS options existed. I very much love the Synology appliance as its well designed and had been very stable. The challenge however was to expand to another unit, especially a rack mounted one, would have likely set me back $1,500+.</p>
+<p>When I was talking to a colleague about this he suggest I explore reburbished servers, and I ended up finding a great 24-bay option for around $600 off of <a href="https://theserverstore.com">theserverstore.com</a>. I purchased this and waited for it to arrive, to ensure I could appropriately measure the total depth I’d need for what was certainly going to be the largest component of the system.</p>
+<p>When the server arrived I couldn’t believe the sheer size of the unit. Even though I’ve been in the software industry for 20 years, this was the first time I had ever seen one of these kinds of devices in real life.</p>
+<figure class="gatsbyRemarkImagesGrid"><div class="gatsbyRemarkImagesGrid-grid" style="
+            grid-template-columns: repeat(auto-fill, minmax(48%, 1fr));
+          ">
+<figure class="gatsby-resp-image-figure" style="">
+    <span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 590px; "
+    >
+      <a
+    class="gatsby-resp-image-link"
+    href="/static/9af7fd9a270f84d78c57327da006b626/f212f/nas-1.jpg"
+    style="display: block"
+    target="_blank"
+    rel="noopener"
+  >
+    <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 69.5945945945946%; position: relative; bottom: 0; left: 0; background-image: url('data:image/jpeg;base64,/9j/2wBDABALDA4MChAODQ4SERATGCgaGBYWGDEjJR0oOjM9PDkzODdASFxOQERXRTc4UG1RV19iZ2hnPk1xeXBkeFxlZ2P/2wBDARESEhgVGC8aGi9jQjhCY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2P/wgARCAAOABQDASIAAhEBAxEB/8QAFwAAAwEAAAAAAAAAAAAAAAAAAAIDBP/EABYBAQEBAAAAAAAAAAAAAAAAAAEAAv/aAAwDAQACEAMQAAABxXVMu4qF/8QAGhAAAgMBAQAAAAAAAAAAAAAAAQIAAxMSIv/aAAgBAQABBQIOaDvW0X0GQCJQjv1jP//EABQRAQAAAAAAAAAAAAAAAAAAABD/2gAIAQMBAT8BP//EABYRAAMAAAAAAAAAAAAAAAAAAAEQEf/aAAgBAgEBPwGhf//EABwQAAICAwEBAAAAAAAAAAAAAAABAhESIjFRgf/aAAgBAQAGPwJbyx8G3J/UXHhUtiuGHT//xAAZEAEBAQEBAQAAAAAAAAAAAAABEQBBIWH/2gAIAQEAAT8hEaIvgw4OuQyLncB1wb3XR0Aj4d//2gAMAwEAAgADAAAAEHA//8QAFhEAAwAAAAAAAAAAAAAAAAAAARAR/9oACAEDAQE/EIV//8QAFhEBAQEAAAAAAAAAAAAAAAAAEQEQ/9oACAECAQE/EKhn/8QAGxABAQADAQEBAAAAAAAAAAAAAREAIWExUYH/2gAIAQEAAT8QIWnopu+Pcdgd8AhA0uAbbx+6waREJ7vOZEd/F+OLwwFDVO9z/9k='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="NAS Front"
+        title="NAS Front"
+        src="/static/9af7fd9a270f84d78c57327da006b626/1c72d/nas-1.jpg"
+        srcset="/static/9af7fd9a270f84d78c57327da006b626/a80bd/nas-1.jpg 148w,
+/static/9af7fd9a270f84d78c57327da006b626/1c91a/nas-1.jpg 295w,
+/static/9af7fd9a270f84d78c57327da006b626/1c72d/nas-1.jpg 590w,
+/static/9af7fd9a270f84d78c57327da006b626/a8a14/nas-1.jpg 885w,
+/static/9af7fd9a270f84d78c57327da006b626/f212f/nas-1.jpg 916w"
+        sizes="(max-width: 590px) 100vw, 590px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+      />
+  </a>
+    </span>
+    <figcaption class="gatsby-resp-image-figcaption">NAS Front</figcaption>
+  </figure>
+<figure class="gatsby-resp-image-figure" style="">
+    <span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 590px; "
+    >
+      <a
+    class="gatsby-resp-image-link"
+    href="/static/d802323dabbd5124c4d975b1f45b9657/f212f/nas-2.jpg"
+    style="display: block"
+    target="_blank"
+    rel="noopener"
+  >
+    <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 69.5945945945946%; position: relative; bottom: 0; left: 0; background-image: url('data:image/jpeg;base64,/9j/2wBDABALDA4MChAODQ4SERATGCgaGBYWGDEjJR0oOjM9PDkzODdASFxOQERXRTc4UG1RV19iZ2hnPk1xeXBkeFxlZ2P/2wBDARESEhgVGC8aGi9jQjhCY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2P/wgARCAAOABQDASIAAhEBAxEB/8QAGAAAAgMAAAAAAAAAAAAAAAAAAAQBAgP/xAAWAQEBAQAAAAAAAAAAAAAAAAACAAH/2gAMAwEAAhADEAAAAZVzcyuKhX//xAAbEAACAwADAAAAAAAAAAAAAAABAgADERITIv/aAAgBAQABBQIweIOeJZtQTpRr8P8A/8QAFBEBAAAAAAAAAAAAAAAAAAAAEP/aAAgBAwEBPwE//8QAFREBAQAAAAAAAAAAAAAAAAAAARD/2gAIAQIBAT8BZ//EABoQAAMAAwEAAAAAAAAAAAAAAAABESEiMWH/2gAIAQEABj8COmri9Iy9ZlVn/8QAGhABAQADAQEAAAAAAAAAAAAAAREAIUExUf/aAAgBAQABPyEhr04/cdqk3J3HBs+GZBbGXKGuRTTo5//aAAwDAQACAAMAAAAQay//xAAXEQEAAwAAAAAAAAAAAAAAAAAAARFh/9oACAEDAQE/EI1b/8QAFxEAAwEAAAAAAAAAAAAAAAAAAAERIf/aAAgBAgEBPxBVcIf/xAAcEAEBAAIDAQEAAAAAAAAAAAABEQAhQVFhcfD/2gAIAQEAAT8QRtZWyw6JOfcE4hc8zdDSZRAloE+dnTioiAhmnR+8xLZWVNF8y4UBobXP/9k='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="NAS Inside"
+        title="NAS Inside"
+        src="/static/d802323dabbd5124c4d975b1f45b9657/1c72d/nas-2.jpg"
+        srcset="/static/d802323dabbd5124c4d975b1f45b9657/a80bd/nas-2.jpg 148w,
+/static/d802323dabbd5124c4d975b1f45b9657/1c91a/nas-2.jpg 295w,
+/static/d802323dabbd5124c4d975b1f45b9657/1c72d/nas-2.jpg 590w,
+/static/d802323dabbd5124c4d975b1f45b9657/a8a14/nas-2.jpg 885w,
+/static/d802323dabbd5124c4d975b1f45b9657/f212f/nas-2.jpg 916w"
+        sizes="(max-width: 590px) 100vw, 590px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+      />
+  </a>
+    </span>
+    <figcaption class="gatsby-resp-image-figcaption">NAS Inside</figcaption>
+  </figure>
+</div></figure>
+<p>As soon as It arrived I began setting it up, but to my surprise it wouldn’t boot. This took a couple of days as I didn’t have a VGA cable (oof) so I had no display to work from. After going through and ripping it apart, reinstalling everything, and then individually testing all 16 sticks of memory I eventually found one that was bad. Nothing worth writing home over, as I still had 60gb which was just going to collect dust anyways.</p>
+<p>The NAS was up and running (using <a href="https://unraid.net/">Unraid</a>) and transferring data from my Synology, so now we could go back to sorting out the rest of our problems.</p>
+<h1>Expanding the Rack</h1>
+<p>Finding a larger rack - especially with what I knew at this point - was a lot trickier. I knew that full size data center racks were extremely large, and most importantly far too deep to fit well in my garage. I also knew that I wanted it mostly covered given it was going to be in my garage and it would get fairly dusty.</p>
+<p>I started by whipping up an excel sheet to figure out a rough layout for the rack. I knew it was unlikely I needed more than 20U, and I also knew the NAS was going to be the unit with the most depth. Pretty much anything else I can buy was a lot more flexible in its dimensions. So with that I spent a number of days searching for the options I had.</p>
+<p>It was actually quite difficult to find selection on racks that were considered mid-depth. Mostly there was no single source of truth that would let me specify the range of depths I wanted, and there also seems to be a huge variety of manufacturers of these products. The biggest difficulty was that many of the more well known manufacturers didn’t actually sell what I needed.</p>
+<p>Eventually I realized that some of the brands which I had seen on Amazon offered more consumer focused styles. I hunch is because these are often used for media cabinets more so than what I’m doing, but that didn’t matter to me. After searching through their official websites for a while, I found that Navepoint had a really fairly priced unit that looked nice and was also available to purchase on Amazon. It was larger than I needed, but that was actually fine as I had enough vertical space.</p>
+<p>When it was all said I done, I landed on <a href="https://www.amazon.com/gp/product/B07XSBXQNX">this 42U mid-depth rack</a> from Navepoint.</p>
+<h1>Installation</h1>
+<p>First lesson: don’t try to unload one of these off a truck by yourself.</p>
+<p>I set up the rack in what I thought would be its permanent home - a nice open area next to some shelves running along a wall in my garage. I later changed this due to fear of one of the water-filled pipes in the rafters bursting and racking up an enormous bill. All in all, the rack looked great, and the features were exactly what I needed.</p>
+<figure class="gatsbyRemarkImagesGrid"><div class="gatsbyRemarkImagesGrid-grid" style="
+            grid-template-columns: repeat(auto-fill, minmax(48%, 1fr));
+          ">
+<figure class="gatsby-resp-image-figure" style="">
+    <span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 590px; "
+    >
+      <a
+    class="gatsby-resp-image-link"
+    href="/static/076df0c5f8af2f12b329deec68cbd340/69128/rack-1.jpg"
+    style="display: block"
+    target="_blank"
+    rel="noopener"
+  >
+    <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 133.1081081081081%; position: relative; bottom: 0; left: 0; background-image: url('data:image/jpeg;base64,/9j/2wBDABALDA4MChAODQ4SERATGCgaGBYWGDEjJR0oOjM9PDkzODdASFxOQERXRTc4UG1RV19iZ2hnPk1xeXBkeFxlZ2P/2wBDARESEhgVGC8aGi9jQjhCY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2P/wgARCAAbABQDASIAAhEBAxEB/8QAGAAAAgMAAAAAAAAAAAAAAAAAAAQCAwX/xAAWAQEBAQAAAAAAAAAAAAAAAAABAAL/2gAMAwEAAhADEAAAAYrtQyslJKyl6saxpBv/xAAfEAABAwQDAQAAAAAAAAAAAAACAAEDBBETIhIxMjP/2gAIAQEAAQUCqthij3xqb5sW/M1U3BAb5bOym6i9uv/EABYRAQEBAAAAAAAAAAAAAAAAABEAEP/aAAgBAwEBPwHVv//EABYRAAMAAAAAAAAAAAAAAAAAAAAQEf/aAAgBAgEBPwF0/8QAIRAAAQMDBAMAAAAAAAAAAAAAAAECERAhMQMSIjJhcaH/2gAIAQEABj8CZbAzjCSdRvtDTTypn4bZGlpolP/EAB0QAQACAgIDAAAAAAAAAAAAAAEAESExQbFRkfH/2gAIAQEAAT8hvurRF3yFzdcxcROmk6o974RTSfaMANMSwq77nGVjVt5md0wZ/9oADAMBAAIAAwAAABC4ybH/xAAXEQEBAQEAAAAAAAAAAAAAAAABEQAh/9oACAEDAQE/EE7phjctWG//xAAZEQACAwEAAAAAAAAAAAAAAAAAARARITH/2gAIAQIBAT8QTwsXI//EAB4QAQEBAQACAgMAAAAAAAAAAAERACExQVFxYaHR/9oACAEBAAE/EHJNAAteGYk0iSeevfqauYgpnjDVkjeyxqSLbh8n+mUon4X7YjWYV9meigwr49pg8Qu8LM4UhIuADoET7EmdQ4b/2Q=='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="Rack w/ Sonos"
+        title="Rack w/ Sonos"
+        src="/static/076df0c5f8af2f12b329deec68cbd340/1c72d/rack-1.jpg"
+        srcset="/static/076df0c5f8af2f12b329deec68cbd340/a80bd/rack-1.jpg 148w,
+/static/076df0c5f8af2f12b329deec68cbd340/1c91a/rack-1.jpg 295w,
+/static/076df0c5f8af2f12b329deec68cbd340/1c72d/rack-1.jpg 590w,
+/static/076df0c5f8af2f12b329deec68cbd340/a8a14/rack-1.jpg 885w,
+/static/076df0c5f8af2f12b329deec68cbd340/69128/rack-1.jpg 1036w"
+        sizes="(max-width: 590px) 100vw, 590px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+      />
+  </a>
+    </span>
+    <figcaption class="gatsby-resp-image-figcaption">Rack w/ Sonos</figcaption>
+  </figure>
+<figure class="gatsby-resp-image-figure" style="">
+    <span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 590px; "
+    >
+      <a
+    class="gatsby-resp-image-link"
+    href="/static/4a0cc7977e9a6852ca6f699d119d7032/69128/rack-2.jpg"
+    style="display: block"
+    target="_blank"
+    rel="noopener"
+  >
+    <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 133.1081081081081%; position: relative; bottom: 0; left: 0; background-image: url('data:image/jpeg;base64,/9j/2wBDABALDA4MChAODQ4SERATGCgaGBYWGDEjJR0oOjM9PDkzODdASFxOQERXRTc4UG1RV19iZ2hnPk1xeXBkeFxlZ2P/2wBDARESEhgVGC8aGi9jQjhCY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2P/wgARCAAbABQDASIAAhEBAxEB/8QAGAAAAwEBAAAAAAAAAAAAAAAAAAMEBQL/xAAXAQEBAQEAAAAAAAAAAAAAAAAAAQID/9oADAMBAAIQAxAAAAFUr3ZrjkJI64DXNMnT/8QAHBAAAgMAAwEAAAAAAAAAAAAAAQIAAxIEITEk/9oACAEBAAEFArm+aruzJBbqoFdG5xOQDWiOd5MvMX3yf//EABcRAAMBAAAAAAAAAAAAAAAAAAAQEmH/2gAIAQMBAT8BdYf/xAAXEQADAQAAAAAAAAAAAAAAAAAAARAR/9oACAECAQE/AVdP/8QAHRAAAgIBBQAAAAAAAAAAAAAAABEBAjESIEFCcf/aAAgBAQAGPwKsQysO2SckSmiijscGlsr6Z2f/xAAbEAADAQEBAQEAAAAAAAAAAAAAAREhMUFxof/aAAgBAQABPyH3Qn1CtU6zpAJzfBr3Bj9JqX2MIigZIat8rhDn4HN16O3ofhYf/9oADAMBAAIAAwAAABBE3o7/xAAZEQADAAMAAAAAAAAAAAAAAAAAARExodH/2gAIAQMBAT8QeSFjo7djfT//xAAZEQACAwEAAAAAAAAAAAAAAAAAARARITH/2gAIAQIBAT8QbCxch//EAB8QAQEAAgIBBQAAAAAAAAAAAAERACFBUTFhcYGhsf/aAAgBAQABPxAl8DfBqOBiC6f3CBk4qDgpYabEV5+cHDdAHNFWZUADhfXE80iw1uzK5JwmlAznIO93iJaG798Eisj95KBB0Gf/2Q=='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="Rack w/ Networking"
+        title="Rack w/ Networking"
+        src="/static/4a0cc7977e9a6852ca6f699d119d7032/1c72d/rack-2.jpg"
+        srcset="/static/4a0cc7977e9a6852ca6f699d119d7032/a80bd/rack-2.jpg 148w,
+/static/4a0cc7977e9a6852ca6f699d119d7032/1c91a/rack-2.jpg 295w,
+/static/4a0cc7977e9a6852ca6f699d119d7032/1c72d/rack-2.jpg 590w,
+/static/4a0cc7977e9a6852ca6f699d119d7032/a8a14/rack-2.jpg 885w,
+/static/4a0cc7977e9a6852ca6f699d119d7032/69128/rack-2.jpg 1036w"
+        sizes="(max-width: 590px) 100vw, 590px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+      />
+  </a>
+    </span>
+    <figcaption class="gatsby-resp-image-figcaption">Rack w/ Networking</figcaption>
+  </figure>
+</div></figure>
+<p>I had gotten the Sonos Amps rack mounted at this point, as well as we NAS and 2U server. From there I moved over the networking gear and began visualizing what I might want to change. I knew I could start actually finalizing components. No more was I doing temporary work, things that were getting installed were going to be in their final homes.</p>
+<p><figure class="gatsby-resp-image-figure" style="">
+    <span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 590px; "
+    >
+      <a
+    class="gatsby-resp-image-link"
+    href="/static/4bb57472b7ed54a91449f765a5ff86ce/5e0ab/sonos-1.jpg"
+    style="display: block"
+    target="_blank"
+    rel="noopener"
+  >
+    <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 49.32432432432432%; position: relative; bottom: 0; left: 0; background-image: url('data:image/jpeg;base64,/9j/2wBDABALDA4MChAODQ4SERATGCgaGBYWGDEjJR0oOjM9PDkzODdASFxOQERXRTc4UG1RV19iZ2hnPk1xeXBkeFxlZ2P/2wBDARESEhgVGC8aGi9jQjhCY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2P/wgARCAAKABQDASIAAhEBAxEB/8QAFwAAAwEAAAAAAAAAAAAAAAAAAAMEBf/EABUBAQEAAAAAAAAAAAAAAAAAAAAB/9oADAMBAAIQAxAAAAFLcms1CMr/xAAYEAADAQEAAAAAAAAAAAAAAAABAhIAA//aAAgBAQABBQK2u+uTsoUbmohVG//EABQRAQAAAAAAAAAAAAAAAAAAABD/2gAIAQMBAT8BP//EABQRAQAAAAAAAAAAAAAAAAAAABD/2gAIAQIBAT8BP//EABwQAQACAQUAAAAAAAAAAAAAAAEAIRIDEBExcf/aAAgBAQAGPwJwMTydzjUp2KI0T//EABwQAAICAgMAAAAAAAAAAAAAAAABETFRkUFx4f/aAAgBAQABPyGBkw6QmV9eksYcciJ2h1r1HZWD/9oADAMBAAIAAwAAABBwz//EABYRAQEBAAAAAAAAAAAAAAAAAAEQEf/aAAgBAwEBPxB1n//EABcRAQEBAQAAAAAAAAAAAAAAAAEAEVH/2gAIAQIBAT8QA5Zf/8QAHBABAAMAAgMAAAAAAAAAAAAAAQARITFRQWGB/9oACAEBAAE/EEasIPBw3cGz0NG4OLxFqp3n2X1DnkjECmqI/aVnHRP/2Q=='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="Sonos Amps"
+        title="Sonos Amps"
+        src="/static/4bb57472b7ed54a91449f765a5ff86ce/1c72d/sonos-1.jpg"
+        srcset="/static/4bb57472b7ed54a91449f765a5ff86ce/a80bd/sonos-1.jpg 148w,
+/static/4bb57472b7ed54a91449f765a5ff86ce/1c91a/sonos-1.jpg 295w,
+/static/4bb57472b7ed54a91449f765a5ff86ce/1c72d/sonos-1.jpg 590w,
+/static/4bb57472b7ed54a91449f765a5ff86ce/a8a14/sonos-1.jpg 885w,
+/static/4bb57472b7ed54a91449f765a5ff86ce/fbd2c/sonos-1.jpg 1180w,
+/static/4bb57472b7ed54a91449f765a5ff86ce/5e0ab/sonos-1.jpg 1786w"
+        sizes="(max-width: 590px) 100vw, 590px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+      />
+  </a>
+    </span>
+    <figcaption class="gatsby-resp-image-figcaption">Sonos Amps</figcaption>
+  </figure></p>
+<p>Over the next few weeks I began moving devices over, rerouting and cleaning up cables, and filling in the gaps (literally). This was my first time ever working with a system like this, and overall I’m pleased with the final result. There’s some things I may look to clean up down the road, but all in all its in a good place.</p>
+<figure class="gatsbyRemarkImagesGrid"><div class="gatsbyRemarkImagesGrid-grid" style="
+            grid-template-columns: repeat(auto-fill, minmax(48%, 1fr));
+          ">
+<figure class="gatsby-resp-image-figure" style="">
+    <span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 400px; "
+    >
+      <a
+    class="gatsby-resp-image-link"
+    href="/static/a5d95161161b571593a9bdc30fedcd29/066f9/rack-3.jpg"
+    style="display: block"
+    target="_blank"
+    rel="noopener"
+  >
+    <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 212.83783783783784%; position: relative; bottom: 0; left: 0; background-image: url('data:image/jpeg;base64,/9j/2wBDABALDA4MChAODQ4SERATGCgaGBYWGDEjJR0oOjM9PDkzODdASFxOQERXRTc4UG1RV19iZ2hnPk1xeXBkeFxlZ2P/2wBDARESEhgVGC8aGi9jQjhCY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2P/wgARCAArABQDASIAAhEBAxEB/8QAGAAAAwEBAAAAAAAAAAAAAAAAAAQFBgP/xAAWAQEBAQAAAAAAAAAAAAAAAAABAAL/2gAMAwEAAhADEAAAAW5dSONwTC6523ATTnIFObojKgUhv//EAB0QAAIDAQADAQAAAAAAAAAAAAECAAMEIRESIjP/2gAIAQEAAQUC0sVA02pEu9l1R6mWKvN35EwTS3nJFPL6vgKzQJxIx7P/xAAWEQADAAAAAAAAAAAAAAAAAAAQESD/2gAIAQMBAT8BhD//xAAWEQEBAQAAAAAAAAAAAAAAAAAQARH/2gAIAQIBAT8BIaf/xAAeEAACAgEFAQAAAAAAAAAAAAAAARARIQIiMUFxkf/aAAgBAQAGPwLaYa+FsRbhOdHk3fBhHcYj/8QAHRABAAICAwEBAAAAAAAAAAAAAQARITFBUYFxsf/aAAgBAQABPyHPweTFVl1CgBcOB3iamozuUQoCdHPc08PyX52iMu3jDuYcB1eCPS6TMLzmIcXwgFT/2gAMAwEAAgADAAAAEJPWQYjP/8QAFxEBAQEBAAAAAAAAAAAAAAAAARARIf/aAAgBAwEBPxBjMPWf/8QAFxEBAQEBAAAAAAAAAAAAAAAAAREAIP/aAAgBAgEBPxA4WMNd/8QAHxABAAMAAwACAwAAAAAAAAAAAQARITFBUWGRcaHw/9oACAEBAAE/EAghVqhzzYwd0Bq2EbM2vYiCrNb9ZS6wVfKUQFXTzXROAYotfmCaHLtkSn+MS6m+/qNh3BTCx+CWtYwXA4qorRKA36h6idgpMHD1sZlLu0F/UYVNZ//Z'); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="Rack (Complete)"
+        title="Rack (Complete)"
+        src="/static/a5d95161161b571593a9bdc30fedcd29/066f9/rack-3.jpg"
+        srcset="/static/a5d95161161b571593a9bdc30fedcd29/a80bd/rack-3.jpg 148w,
+/static/a5d95161161b571593a9bdc30fedcd29/1c91a/rack-3.jpg 295w,
+/static/a5d95161161b571593a9bdc30fedcd29/066f9/rack-3.jpg 400w"
+        sizes="(max-width: 400px) 100vw, 400px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+      />
+  </a>
+    </span>
+    <figcaption class="gatsby-resp-image-figcaption">Rack (Complete)</figcaption>
+  </figure>
+<figure class="gatsby-resp-image-figure" style="">
+    <span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 590px; "
+    >
+      <a
+    class="gatsby-resp-image-link"
+    href="/static/284ef764b0a12ba255a135fc2685b270/4b190/rack-4.jpg"
+    style="display: block"
+    target="_blank"
+    rel="noopener"
+  >
+    <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 133.1081081081081%; position: relative; bottom: 0; left: 0; background-image: url('data:image/jpeg;base64,/9j/2wBDABALDA4MChAODQ4SERATGCgaGBYWGDEjJR0oOjM9PDkzODdASFxOQERXRTc4UG1RV19iZ2hnPk1xeXBkeFxlZ2P/2wBDARESEhgVGC8aGi9jQjhCY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2P/wgARCAAbABQDASIAAhEBAxEB/8QAGQAAAgMBAAAAAAAAAAAAAAAAAAQCAwUG/8QAFQEBAQAAAAAAAAAAAAAAAAAAAgH/2gAMAwEAAhADEAAAAV626zdMiS5CzCKPSlYF/8QAHRAAAgIBBQAAAAAAAAAAAAAAAQIAEgMEESIyM//aAAgBAQABBQJ7QWiOauCxqUlQZm3TKXJgPDV+0Xp//8QAFBEBAAAAAAAAAAAAAAAAAAAAIP/aAAgBAwEBPwEf/8QAFREBAQAAAAAAAAAAAAAAAAAAEAH/2gAIAQIBAT8BIf/EACEQAAICAQIHAAAAAAAAAAAAAAABAjERECEiMlFxcoGR/9oACAEBAAY/AuKxYbFkUVZuqZnqX8OaRDxPWkex/8QAHRABAAMAAgMBAAAAAAAAAAAAAQARITFxQVGBof/aAAgBAQABPyEMttsdgGFvhlWvZk2GGuxpOINwAei5ltcG5KpbtjfJOLpHmfjz/9oADAMBAAIAAwAAABDbwE//xAAZEQACAwEAAAAAAAAAAAAAAAAAARARIUH/2gAIAQMBAT8Q6UPHH//EABcRAQEBAQAAAAAAAAAAAAAAAAEQETH/2gAIAQIBAT8QOEWk/8QAHRABAAMAAgMBAAAAAAAAAAAAAQARITFBYZHwwf/aAAgBAQABPxAsXiWCzPyI64mpywbAE12HcIEJQBq/MSqkHTEeZQ9wGvcB3pZhz6moCmJVe4T7cjVH6ucET8/E/9k='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="Rack (Close-up)"
+        title="Rack (Close-up)"
+        src="/static/284ef764b0a12ba255a135fc2685b270/1c72d/rack-4.jpg"
+        srcset="/static/284ef764b0a12ba255a135fc2685b270/a80bd/rack-4.jpg 148w,
+/static/284ef764b0a12ba255a135fc2685b270/1c91a/rack-4.jpg 295w,
+/static/284ef764b0a12ba255a135fc2685b270/1c72d/rack-4.jpg 590w,
+/static/284ef764b0a12ba255a135fc2685b270/4b190/rack-4.jpg 800w"
+        sizes="(max-width: 590px) 100vw, 590px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+      />
+  </a>
+    </span>
+    <figcaption class="gatsby-resp-image-figcaption">Rack (Close-up)</figcaption>
+  </figure>
+</div></figure>
+<h1>Part Breakdown</h1>
+<p>Here’s a list of what’s currently in the rack:</p>
+<ul>
+<li><a href="https://www.amazon.com/gp/product/B07XSBXQNX">Navepoint 42U rack</a></li>
+<li><a href="https://store.ui.com/collections/routing-switching/products/unifiswitch-24-500w">UniFi Switch 24-port</a></li>
+<li><a href="https://store.ui.com/collections/routing-switching/products/unifi-security-gateway-pro">UniFi Security Gateway Pro</a></li>
+<li><a href="https://store.ui.com/products/unifi-cloudkey-gen2-plus">UniFi Cloud Key Gen2 Plus</a></li>
+<li>w/ <a href="https://store.ui.com/collections/accessories/products/cloud-key-g2-rack-mount-accessory">Cloud Key G2 Rack Mount Accessory</a></li>
+<li>4x <a href="https://www.sonos.com/en-us/shop/amp.html">Sonos Amp</a></li>
+<li>2x <a href="https://www.middleatlantic.com/products/accessories/rackshelves/rsh-manufacturer-alliance-bundles/rsha-sonos-amp2.aspx">Sonos RSH Rack Mount kit</a></li>
+<li>2U custom-built server</li>
+<li>4U Supermicro 24-bay NAS</li>
+<li>Various Navepoint panel blanks</li>
+</ul>
+<p>A few devices which are sitting on the rack shelf:</p>
+<ul>
+<li><a href="https://store.ui.com/collections/wireless/products/unifi-ac-lite">UniFi AC Lite</a> - temporary location</li>
+<li><a href="https://learn.adafruit.com/pi-hole-ad-pitft-tft-detection-display">Pi-hole w/ PADD</a></li>
+<li>SimpliSafe controller</li>
+</ul>
+<p>And out of sight zip tied or otherwise mounted inside of the rack:</p>
+<ul>
+<li>Lutron Connect controller</li>
+<li>Lutron Extender</li>
+<li>Philips Hue controller</li>
+</ul>
+<h1>Part Two</h1>
+<p>I’ll be writing about what’s actually going on with the server and NAS, mostly with my ongoing Home Assistant learnings. If you’d like to explore on your own, I open source <a href="https://github.com/dcramer/hive">the majority of my configurations</a> and the README contains some high level details.</p></section></article><hr style="margin-top:3.6rem;margin-bottom:3.6rem"/><nav><ul style="display:flex;flex-wrap:wrap;justify-content:space-between;list-style:none;padding:0"><li></li><li><a rel="next" href="/optimizing-for-wfh/">Optimizing for WFH<!-- --> →</a></li></ul></nav></div></main><footer style="font-size:12px;text-align:center;margin-top:3.6rem;margin-bottom:1.8rem"><div style="max-width:50.4rem;margin-left:auto;margin-right:auto;padding:0.225rem 1.35rem">© <!-- -->2020<!-- --> David Cramer</div></footer></div></div><div id="gatsby-announcer" style="position:absolute;top:0;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0, 0, 0, 0);white-space:nowrap;border:0" aria-live="assertive" aria-atomic="true"></div></div><script id="gatsby-script-loader">/*<![CDATA[*/window.pagePath="/my-journey-into-home-automation/";/*]]>*/</script><script id="gatsby-chunk-mapping">/*<![CDATA[*/window.___chunkMapping={"app":["/app-3b790dbe793fffb04961.js"],"component---src-pages-404-js":["/component---src-pages-404-js-3b6d9babc7a10ee4a2b7.js"],"component---src-pages-index-tsx":["/component---src-pages-index-tsx-0588ea740742c6d99046.js"],"component---src-templates-blog-post-js":["/component---src-templates-blog-post-js-ba79fd630c21b95015f4.js"]};/*]]>*/</script><script src="/component---src-templates-blog-post-js-ba79fd630c21b95015f4.js" async=""></script><script src="/commons-cf69f4a5736c49837800.js" async=""></script><script src="/app-3b790dbe793fffb04961.js" async=""></script><script src="/styles-14b7960238218173d3fe.js" async=""></script><script src="/framework-dd95e8b3d258d85252e9.js" async=""></script><script src="/webpack-runtime-c65a5d0dab8d0c30f1c9.js" async=""></script></body></html>
