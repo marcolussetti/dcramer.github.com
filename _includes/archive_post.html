@@ -1,8 +1,0 @@
-{% capture category %}{{ post.categories | size }}{% endcapture %}
-<h2 class="title"><a href="{{ root_url }}{{ post.url }}">{{post.title}}</a></h2>
-<div class="meta">
-	<span class="date">{{ post.date | date: "%b %e" }}</span>
-    {% if site.disqus_short_name and post.comments == true %}
-    <span class="comments"><a href="{{ root_url }}{{ post.url }}#disqus_thread">Comments</a></span>
-    {% endif %}
-</div>
