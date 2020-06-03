@@ -13,6 +13,9 @@ const typography = new Typography({
       // figure: {
       //   display: "inline-block",
       // },
+      a: {
+        color: "#6f5dbb",
+      },
       figcaption: {
         textAlign: "center",
         color: "#999",
