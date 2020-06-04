@@ -4,11 +4,11 @@ title: "Optimizing for WFH"
 date: 2020-06-03
 ---
 
-I'm a gamer, specifically a PC gamer. That means I've got a pretty beefy computer at home, and it also means I default to having a nearly-office grade workstation. That's been a great situation to be in as our offices are going to be closed for the better part of this year. The only downside? Swapping cables on the daily. This is a quick journey on improving that situation, what my home setup looks like now, and all of the warts with technology.
+I'm a gamer, specifically a PC gamer. That means I've got a pretty beefy computer at home, and it also means I default to having a nearly-office grade workstation. That's been a great situation to be in, as our offices are going to be closed for the better part of this year. The only downside? Swapping cables on the daily. This is a quick journey on improving that situation, what my home setup looks like now, and all of the warts with technology.
 
 ![The end result](../assets/desk/desk.jpg)
 
-First things first, let's go over our "infrastructure" looks. That's fairly important as it dictates the kinds of choices we can make.
+First things first, let's go over what our "infrastructure" looks. That's fairly important as it dictates the kinds of choices we can make.
 
 - Sandard 13" MacBook Pro
 - Windows 10 Desktop ([specs](https://pcpartpicker.com/b/YNr6Mp))
@@ -16,7 +16,7 @@ First things first, let's go over our "infrastructure" looks. That's fairly impo
 - 60" x 30" standard desk
 - External Mic, Webcam, Headphones, Speakers, and quick access USB Hub
 
-A few years back I had built a two-display KVM setup to achieving quick swapping between systems, so my goal this time around was something similar, but with only a single display this time around. I busted out my old KVM (which is DVI!) only to realize that there was no chance it would work with the resolutions I needed. I then spent a few hours researching alternatives online, only to find that every KVM in the world has awful reviews. So ditching that plan, I decided instead to focus on the minimal amount of effort to swap connections, but while retaining all peripherals.
+A few years back I had built a two-display KVM setup to achieve quick swapping between systems, so my goal this time around was something similar, but with only a single display this time around. I busted out my old KVM (which is DVI!) only to realize that there was no chance it would work with the resolutions I needed. I then spent a few hours researching alternatives online, only to find that every KVM in the world has awful reviews. So ditching that plan, I decided instead to focus on the minimal amount of effort to swap connections, but while retaining all peripherals.
 
 The first thing I discovered was the concept of a display-less KVM. Its probably easier to just call it a USB switch, as it acts like a USB hub and has a button to switch the output between multiple devices. The [one I picked up](https://www.amazon.com/gp/product/B07DKD7JHG/) has four inputs, and two outputs, with a single button to toggle between them. At this point, we now have a plan. Swapping systems would require hitting the USB switch, and then swapping the monitor output between HDMI/DisplayPort. Not as easy as a KVM, but no need to cable swap non-stop.
 
