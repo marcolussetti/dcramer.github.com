@@ -1,12 +1,11 @@
 // Gatsby supports TypeScript natively!
 import React from "react";
 import { PageProps, Link, graphql } from "gatsby";
-import { GitHub, Rss, Twitter } from "react-feather";
+import styled from "@emotion/styled";
 
-import Container from "../components/container";
-import Footer from "../components/footer";
+import HeaderLinks from "../components/headerLinks";
 import SEO from "../components/seo";
-import { rhythm, scale } from "../utils/typography";
+import { rhythm } from "../utils/typography";
 
 type Data = {
   site: {
@@ -30,6 +29,46 @@ type Data = {
   };
 };
 
+const Side = styled.div`
+  display: flex;
+  flex: 1;
+  flex-direction: row;
+  align-items: center;
+  height: 100%;
+  padding: ${rhythm(1)};
+  min-width: 400px;
+
+  &:first-child {
+    justify-content: flex-end;
+    background: #6f5dbb;
+    color: #fff;
+  }
+
+  @media only screen and (max-width: 800px) {
+    &:first-child {
+      display: block;
+      height: auto;
+      padding: ${rhythm(1 / 4)};
+    }
+
+    &:last-child {
+      align-items: flex-start;
+    }
+  }
+`;
+
+// XXX: letter-spacing fucks up the box model, which is why we have margin-left
+const HeaderTitle = styled.div`
+  font-size: 120px;
+  margin: 0;
+  font-weight: 900;
+  letter-spacing: -16px;
+  line-height: 1;
+  margin-left: -16px;
+  text-align: center;
+  overflow: none;
+`;
+
 const BlogIndex = ({ data }: PageProps<Data>) => {
   const siteTitle = data.site.siteMetadata.title;
   const posts = data.allMarkdownRemark.edges;
@@ -37,118 +76,71 @@ const BlogIndex = ({ data }: PageProps<Data>) => {
   return (
     <div
       style={{
-        background: "#6f5dbb",
-        color: "#fff",
         display: "flex",
-        flexDirection: "column",
-        minHeight: "100%",
-        overflow: "none",
-        alignItems: "center",
-        justifyContent: "center",
+        flexWrap: "wrap",
+        flexDirection: "row",
+        height: "100%",
       }}
     >
       <SEO title={siteTitle} />
-      <Container>
-        <header
-          style={{
-            marginBottom: rhythm(2),
-          }}
-        >
-          <div
+      <Side>
+        <header>
+          <HeaderTitle>
+            <Link
+              style={{
+                boxShadow: `none`,
+                color: `inherit`,
+                textDecoration: "none",
+              }}
+              to={`/`}
+            >
+              DC
+            </Link>
+          </HeaderTitle>
+          <HeaderLinks />
+        </header>
+      </Side>
+      <Side
+        style={{
+          flexDirection: "row",
+          justifyContent: "flex-start",
+        }}
+      >
+        <main>
+          <h1
             style={{
-              display: "flex",
-              flexDirection: "column",
+              fontWeight: 300,
             }}
           >
-            <h1
-              style={{
-                ...scale(2),
-                margin: 0,
-                marginBottom: rhythm(1 / 4),
-                fontWeight: 900,
-                letterSpacing: -8,
-                textAlign: "center",
-              }}
-            >
-              <Link
-                style={{
-                  boxShadow: `none`,
-                  color: `inherit`,
-                  textDecoration: "none",
-                }}
-                to={`/`}
+            Ramblings
+          </h1>
+          {posts.map(({ node }) => {
+            const title = node.frontmatter.title || node.fields.slug;
+            return (
+              <article
+                key={node.fields.slug}
+                style={{ marginBottom: rhythm(1) }}
               >
-                DC
-              </Link>
-            </h1>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <a
-                href="https://twitter.com/zeeg"
-                style={{ marginRight: rhythm(1) }}
-              >
-                <Twitter color="white" />
-              </a>
-              <a
-                href="https://github.com/dcramer"
-                style={{ marginRight: rhythm(1) }}
-              >
-                <GitHub color="white" />
-              </a>
-              <a href="/rss.xml">
-                <Rss color="white" />
-              </a>
-            </div>
-          </div>
-        </header>
-        <main
-          style={{
-            marginTop: rhythm(1),
-            flex: 1,
-          }}
-        >
-          <section>
-            <h1
-              style={{
-                fontWeight: 300,
-              }}
-            >
-              Recent Ramblings
-            </h1>
-            {posts.map(({ node }) => {
-              const title = node.frontmatter.title || node.fields.slug;
-              return (
-                <article
-                  key={node.fields.slug}
-                  style={{ marginBottom: rhythm(1) }}
-                >
-                  <header>
-                    <h3 style={{ margin: 0 }}>
-                      <Link
-                        style={{
-                          textDecoration: "none",
-                          boxShadow: `none`,
-                          color: "inherit",
-                        }}
-                        to={node.fields.slug}
-                      >
-                        {title}
-                      </Link>
-                    </h3>
-                    <small>{node.frontmatter.date}</small>
-                  </header>
-                </article>
-              );
-            })}
-          </section>
+                <header>
+                  <h3 style={{ margin: 0 }}>
+                    <Link
+                      style={{
+                        textDecoration: "none",
+                        boxShadow: `none`,
+                        color: "inherit",
+                      }}
+                      to={node.fields.slug}
+                    >
+                      {title}
+                    </Link>
+                  </h3>
+                  <small>{node.frontmatter.date}</small>
+                </header>
+              </article>
+            );
+          })}
         </main>
-        <Footer />
-      </Container>
+      </Side>
     </div>
   );
 };

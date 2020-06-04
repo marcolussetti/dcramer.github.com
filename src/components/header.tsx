@@ -1,9 +1,9 @@
 import React from "react";
 import { Link } from "gatsby";
-import { GitHub, Rss, Twitter } from "react-feather";
 
 import Container from "./container";
-import { rhythm, scale } from "../utils/typography";
+
+import HeaderLinks from "./headerLinks";
 
 export default () => {
   return (
@@ -18,10 +18,11 @@ export default () => {
           <div style={{ flex: 1, justifyContent: "center" }}>
             <h1
               style={{
-                ...scale(2),
+                fontSize: "60px",
                 margin: 0,
                 fontWeight: 900,
-                letterSpacing: -8,
+                lineHeight: 1,
+                letterSpacing: "-4px",
               }}
             >
               <Link
@@ -32,27 +33,11 @@ export default () => {
                 }}
                 to={`/`}
               >
-                DC
+                David Cramer
               </Link>
             </h1>
           </div>
-          <div style={{ display: "flex", alignItems: "center" }}>
-            <a
-              href="https://twitter.com/zeeg"
-              style={{ marginRight: rhythm(1) }}
-            >
-              <Twitter color="white" />
-            </a>
-            <a
-              href="https://github.com/dcramer"
-              style={{ marginRight: rhythm(1) }}
-            >
-              <GitHub color="white" />
-            </a>
-            <a href="/rss.xml">
-              <Rss color="white" />
-            </a>
-          </div>
+          <HeaderLinks />
         </div>
       </Container>
     </header>
