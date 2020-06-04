@@ -20,7 +20,8 @@ export default styled.h1`
     `}
 
   @media only screen and (max-width: 800px) {
-    font-size: 40px;
-    letter-spacing: -8px;
+    font-size: 40px !important;
+    letter-spacing: -4px !important;
+    margin-left: -8px !important;
   }
 `;
