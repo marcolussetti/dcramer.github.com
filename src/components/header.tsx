@@ -2,24 +2,10 @@ import React from "react";
 import { Link } from "gatsby";
 import { GitHub, Rss, Twitter } from "react-feather";
 
+import Container from "./container";
 import { rhythm, scale } from "../utils/typography";
 
-const Container = ({ children }) => {
-  return (
-    <div
-      style={{
-        maxWidth: rhythm(28),
-        marginLeft: "auto",
-        marginRight: "auto",
-        padding: `${rhythm(1 / 8)} ${rhythm(3 / 4)}`,
-      }}
-    >
-      {children}
-    </div>
-  );
-};
-
-const Header = () => {
+export default () => {
   return (
     <header
       style={{
@@ -72,30 +58,3 @@ const Header = () => {
     </header>
   );
 };
-
-const Layout = ({ location, title, children }) => {
-  return (
-    <div>
-      <Header />
-      <main
-        style={{
-          marginTop: rhythm(1),
-        }}
-      >
-        <Container>{children}</Container>
-      </main>
-      <footer
-        style={{
-          fontSize: "12px",
-          textAlign: "center",
-          marginTop: rhythm(2),
-          marginBottom: rhythm(1),
-        }}
-      >
-        <Container>© {new Date().getFullYear()} David Cramer</Container>
-      </footer>
-    </div>
-  );
-};
-
-export default Layout;
