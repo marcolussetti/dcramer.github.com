@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "gatsby";
-import { GitHub, Twitter } from "react-feather";
+import { GitHub, Rss, Twitter } from "react-feather";
 
 import { rhythm, scale } from "../utils/typography";
 
@@ -57,8 +57,14 @@ const Header = () => {
             >
               <Twitter color="white" />
             </a>
-            <a href="https://github.com/dcramer">
+            <a
+              href="https://github.com/dcramer"
+              style={{ marginRight: rhythm(1) }}
+            >
               <GitHub color="white" />
+            </a>
+            <a href="/rss.xml">
+              <Rss color="white" />
             </a>
           </div>
         </div>
