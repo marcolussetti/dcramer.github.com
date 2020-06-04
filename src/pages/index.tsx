@@ -132,6 +132,10 @@ const BlogIndex = ({ data }: PageProps<Data>) => {
               </article>
             );
           })}
+          <small style={{ color: "#999" }}>
+            I've archived posts older than 2020. If you found something useful,
+            and it's missing, let me know!
+          </small>
         </main>
       </Side>
     </div>
