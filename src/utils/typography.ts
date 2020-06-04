@@ -7,6 +7,10 @@ const typography = new Typography({
   bodyFontFamily: ["Open Sans", "sans-serif"],
   overrideThemeStyles: () => {
     return {
+      "html, body, #___gatsby, #gatsby-focus-wrapper": {
+        height: "100%",
+        margin: 0,
+      },
       "a.gatsby-resp-image-link": {
         boxShadow: `none`,
       },
