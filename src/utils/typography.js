@@ -16,6 +16,9 @@ const typography = new Typography({
       a: {
         color: "#6f5dbb",
       },
+      "figure.gatsbyRemarkImagesGrid": {
+        marginBottom: 0,
+      },
       figcaption: {
         textAlign: "center",
         color: "#999",
