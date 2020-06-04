@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 import { css } from "@emotion/core";
 
 // XXX: letter-spacing fucks up the box model, which is why we have margin-left
-export default styled.h1`
+export default styled.h1<{ long?: boolean }>`
   font-size: 120px;
   margin: 0;
   font-weight: 900;
