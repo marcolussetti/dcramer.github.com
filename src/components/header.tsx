@@ -26,7 +26,7 @@ export default () => {
                 }}
                 to={`/`}
               >
-                David Cramer
+                DC
               </Link>
             </HeaderTitle>
           </div>
