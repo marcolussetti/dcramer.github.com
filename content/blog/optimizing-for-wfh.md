@@ -10,7 +10,7 @@ I'm a gamer, specifically a PC gamer. That means I've got a pretty beefy compute
 
 First things first, let's go over what our "infrastructure" looks. That's fairly important as it dictates the kinds of choices we can make.
 
-- Sandard 13" MacBook Pro
+- Standard 13" MacBook Pro
 - Windows 10 Desktop ([specs](https://pcpartpicker.com/b/YNr6Mp))
 - 34" UWD (Alienware AW3418DW)
 - 60" x 30" standard desk
