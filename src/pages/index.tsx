@@ -1,9 +1,9 @@
-// Gatsby supports TypeScript natively!
 import React from "react";
 import { PageProps, Link, graphql } from "gatsby";
 import styled from "@emotion/styled";
 
 import HeaderLinks from "../components/headerLinks";
+import HeaderTitle from "../components/headerTitle";
 import SEO from "../components/seo";
 import { rhythm } from "../utils/typography";
 
@@ -44,6 +44,14 @@ const Side = styled.div`
     color: #fff;
   }
 
+  article {
+    margin-bottom: ${rhythm(1)};
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
   @media only screen and (max-width: 800px) {
     &:first-child {
       display: block;
@@ -55,18 +63,6 @@ const Side = styled.div`
       align-items: flex-start;
     }
   }
-`;
-
-// XXX: letter-spacing fucks up the box model, which is why we have margin-left
-const HeaderTitle = styled.div`
-  font-size: 120px;
-  margin: 0;
-  font-weight: 900;
-  letter-spacing: -16px;
-  line-height: 1;
-  margin-left: -16px;
-  text-align: center;
-  overflow: none;
 `;
 
 const BlogIndex = ({ data }: PageProps<Data>) => {
@@ -85,7 +81,7 @@ const BlogIndex = ({ data }: PageProps<Data>) => {
       <SEO title={siteTitle} />
       <Side>
         <header>
-          <HeaderTitle>
+          <HeaderTitle style={{ textAlign: "center" }}>
             <Link
               style={{
                 boxShadow: `none`,
@@ -117,10 +113,7 @@ const BlogIndex = ({ data }: PageProps<Data>) => {
           {posts.map(({ node }) => {
             const title = node.frontmatter.title || node.fields.slug;
             return (
-              <article
-                key={node.fields.slug}
-                style={{ marginBottom: rhythm(1) }}
-              >
+              <article key={node.fields.slug}>
                 <header>
                   <h3 style={{ margin: 0 }}>
                     <Link

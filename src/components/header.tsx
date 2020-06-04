@@ -4,6 +4,7 @@ import { Link } from "gatsby";
 import Container from "./container";
 
 import HeaderLinks from "./headerLinks";
+import HeaderTitle from "./headerTitle";
 
 export default () => {
   return (
@@ -16,15 +17,7 @@ export default () => {
       <Container>
         <div style={{ display: "flex" }}>
           <div style={{ flex: 1, justifyContent: "center" }}>
-            <h1
-              style={{
-                fontSize: "60px",
-                margin: 0,
-                fontWeight: 900,
-                lineHeight: 1,
-                letterSpacing: "-4px",
-              }}
-            >
+            <HeaderTitle long>
               <Link
                 style={{
                   boxShadow: `none`,
@@ -35,7 +28,7 @@ export default () => {
               >
                 David Cramer
               </Link>
-            </h1>
+            </HeaderTitle>
           </div>
           <HeaderLinks />
         </div>

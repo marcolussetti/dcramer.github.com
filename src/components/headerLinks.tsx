@@ -25,7 +25,7 @@ const HeaderLinks = styled.div`
 `;
 
 type Props = {
-  size: number;
+  size?: number;
 };
 
 export default ({ size = 24 }: Props) => (
